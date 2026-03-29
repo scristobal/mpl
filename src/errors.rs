@@ -1,7 +1,7 @@
 //! Error types and diagnostics for `MPL` parsing.
 #![allow(unused_assignments)] // We need this for the parse error
 
-use std::fmt;
+use std::fmt::{self, Write as _};
 
 use miette::{Diagnostic, SourceSpan};
 use pest::{
@@ -20,8 +20,10 @@ pub enum ParseError {
     #[diagnostic(code(mpl_lang::syntax_error))]
     SyntaxError {
         /// The source location of the error with detailed message
-        #[label("{message}")]
+        #[label("{label}")]
         span: SourceSpan,
+        /// Short label for the inline source annotation
+        label: String,
         /// The detailed error message
         message: String,
         /// Optional suggestion for fixing the error
@@ -282,19 +284,60 @@ impl From<PestError<Rule>> for ParseError {
             InputLocation::Span((start, end)) => (start, end - start),
         };
 
-        let (message, suggestion) = match &err.variant {
+        let (label, message, suggestion) = match &err.variant {
             ErrorVariant::ParsingError {
                 positives,
                 negatives,
             } => {
-                let mut msg = String::new();
-                if !positives.is_empty() {
-                    msg.push_str("expected ");
-                    msg.push_str(&friendly_rules(positives));
+                let mut keywords = Vec::new();
+                let mut operations = Vec::new();
+                let mut other = Vec::new();
+
+                for rule in positives {
+                    let name = friendly_rule(*rule);
+                    if name.contains("keyword") {
+                        keywords.push(name);
+                    } else if name.contains("operation") {
+                        operations.push(name);
+                    } else {
+                        other.push(name);
+                    }
                 }
+
+                let mut label = String::new();
+                if keywords.is_empty() && operations.is_empty() && other.is_empty() {
+                    label.push_str("unexpected token");
+                } else {
+                    label.push_str("expected one of:\n");
+                    if !keywords.is_empty() {
+                        let kws: Vec<_> = keywords
+                            .iter()
+                            .map(|k| k.trim_end_matches(" keyword"))
+                            .collect();
+                        let _ = writeln!(label, "  keywords: {}", join_with_or(&kws));
+                    }
+                    if !operations.is_empty() {
+                        let ops: Vec<_> = operations
+                            .iter()
+                            .map(|o| {
+                                o.trim_start_matches("a ")
+                                    .trim_start_matches("an ")
+                                    .trim_end_matches(" operation")
+                            })
+                            .collect();
+                        let _ = writeln!(label, "  operations: {}", join_with_or(&ops));
+                    }
+                    if !other.is_empty() {
+                        for name in &other {
+                            let _ = writeln!(label, "  - {name}");
+                        }
+                    }
+                }
+
+                let mut msg = "unexpected token or operation".to_string();
                 if !negatives.is_empty() {
                     if !msg.is_empty() {
-                        msg.push_str(", ");
+                        msg.push_str("  ");
                     }
                     msg.push_str("but found ");
                     msg.push_str(&friendly_rules(negatives));
@@ -312,15 +355,31 @@ impl From<PestError<Rule>> for ParseError {
                     len = token_length(err.line(), line_pos);
                 }
 
-                (msg, suggestion)
+                let label = label.trim_end().to_string();
+                (label, msg, suggestion)
             }
-            ErrorVariant::CustomError { message } => (message.clone(), None),
+            ErrorVariant::CustomError { message } => (message.clone(), message.clone(), None),
         };
 
         ParseError::SyntaxError {
             span: SourceSpan::new(start.into(), len),
+            label,
             message,
             suggestion,
+        }
+    }
+}
+
+/// Join a list of items with commas and "or" before the last item
+fn join_with_or(items: &[&str]) -> String {
+    match items.len() {
+        0 => String::new(),
+        1 => items[0].to_string(),
+        2 => format!("{} or {}", items[0], items[1]),
+        _ => {
+            let last = items[items.len() - 1];
+            let rest = &items[..items.len() - 1];
+            format!("{}, or {last}", rest.join(", "))
         }
     }
 }
@@ -354,7 +413,7 @@ fn friendly_rule(rule: Rule) -> String {
     match rule {
         // Control
         Rule::EOI => "end of query".to_string(),
-        Rule::pipe_keyword => "\"|\" (pipe)".to_string(),
+        Rule::pipe_keyword => "`|` (pipe)".to_string(),
 
         // Time
         Rule::time_range => "time range (e.g.,  [1h..])".to_string(),
@@ -364,13 +423,14 @@ fn friendly_rule(rule: Rule) -> String {
         Rule::time_modifier => "time modifier".to_string(),
 
         // Keywords
-        Rule::filter_keyword => "\"where\" keyword".to_string(),
-        Rule::r#as => "\"as\" keyword".to_string(),
+        Rule::filter_keyword | Rule::kw_filter => "`filter` keyword".to_string(),
+        Rule::kw_where => "`where` keyword".to_string(),
+        Rule::r#as => "`as` keyword".to_string(),
 
         // Ops
-        Rule::cmp => "comparison operator (==, !=, <, >, <=, >=)".to_string(),
-        Rule::cmp_re => "regex operator (==, !=)".to_string(),
-        Rule::regex => "regex pattern (e.g., /pattern/)".to_string(),
+        Rule::cmp => "a comparison operator (==, !=, <, >, <=, >=)".to_string(),
+        Rule::cmp_re => "a regex operator (==, !=)".to_string(),
+        Rule::regex => "a regex pattern (e.g., /pattern/)".to_string(),
 
         // Values
         Rule::value => "value (string, number, or bool)".to_string(),
@@ -387,12 +447,12 @@ fn friendly_rule(rule: Rule) -> String {
         Rule::dataset => "dataset name".to_string(),
 
         // Aggrs
-        Rule::align => "\"align\" operation".to_string(),
-        Rule::group_by => "\"group by\" operation".to_string(),
-        Rule::bucket_by => "\"bucket by\" operation".to_string(),
-        Rule::map => "\"map\" operation".to_string(),
-        Rule::replace => "\"replace\" operation".to_string(),
-        Rule::join => "\"join\" operation".to_string(),
+        Rule::align => "an align operation".to_string(),
+        Rule::group_by => "a group by operation".to_string(),
+        Rule::bucket_by => "a bucket by operation".to_string(),
+        Rule::map => "a map operation".to_string(),
+        Rule::replace => "a replace operation".to_string(),
+        Rule::join => "a join operation".to_string(),
 
         // Query types
         Rule::simple_query => "simple query".to_string(),
@@ -426,7 +486,7 @@ fn friendly_rule(rule: Rule) -> String {
         Rule::sample_expr => "sample expression".to_string(),
         Rule::value_filter => "value filter".to_string(),
         Rule::regex_filter => "regex filter".to_string(),
-        Rule::kw_is => "\"is\" keyword".to_string(),
+        Rule::kw_is => "`is` keyword".to_string(),
         Rule::is_filter => "type filter (e.g., is string)".to_string(),
         Rule::tag_type => "tag type (string, int, float, or bool)".to_string(),
 
@@ -501,6 +561,16 @@ fn extract_token(line: &str, pos: usize) -> Option<String> {
         return None;
     }
 
+    // Skip whitespace forward to find the next token
+    let mut pos = pos;
+    while pos < chars.len() && chars[pos].is_whitespace() {
+        pos += 1;
+    }
+
+    if pos >= chars.len() {
+        return None;
+    }
+
     // Find the start of the token (go backwards)
     let mut start = pos;
     while start > 0 && chars[start - 1].is_alphanumeric() {
@@ -546,7 +616,7 @@ fn rules_keywords(rules: &[Rule]) -> Vec<&'static str> {
 
     for rule in rules {
         match rule {
-            Rule::filter_keyword => {
+            Rule::filter_keyword | Rule::kw_filter | Rule::kw_where => {
                 keywords.push("where");
                 keywords.push("filter");
             }

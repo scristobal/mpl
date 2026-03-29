@@ -62,7 +62,7 @@ clock = ["chrono/clock"]
 # Include examples in the build
 examples = []
 # for CLI tools
-cli = ["dep:clap", "dep:ron", "dep:arborium"]
+cli = ["dep:clap", "dep:ron", "dep:arborium", "miette/fancy"]
 # for WASM bindings
 wasm = [
   "dep:wasm-bindgen",

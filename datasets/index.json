@@ -1,0 +1,124 @@
+{
+  "dataset": {
+    "metric": [
+      "tag"
+    ]
+  },
+  "dev.metrics": {
+    "alertmanager_alerts": [
+      "namespace",
+      "service"
+    ],
+    "http_requests_total": [
+      "code",
+      "container",
+      "method",
+      "path"
+    ],
+    "transport_request_duration_seconds_bucket": [
+      "handler",
+      "le",
+      "status"
+    ]
+  },
+  "my_app": {
+    "cache.hit_ratio": [
+      "cache_name",
+      "deployment.environment",
+      "region"
+    ],
+    "error.rate": [
+      "endpoint",
+      "error_type",
+      "region"
+    ],
+    "queue.depth": [
+      "queue_name",
+      "region"
+    ],
+    "request.latency_ms": [
+      "endpoint",
+      "region",
+      "service.name",
+      "status_code"
+    ]
+  },
+  "otel": {
+    "db_query_duration": [
+      "db.statement",
+      "db.system",
+      "service.name"
+    ],
+    "http_requests_total": [
+      "deployment.environment",
+      "method",
+      "service.name",
+      "status"
+    ],
+    "rpc_duration": [
+      "method",
+      "net.peer.name",
+      "rpc.system",
+      "service.name"
+    ],
+    "runtime.gc_pause": [
+      "deployment.environment",
+      "service.name"
+    ]
+  },
+  "test": {
+    "container_cpu_usage_seconds_total": [
+      "container",
+      "namespace",
+      "pod"
+    ],
+    "http_request_duration_seconds_bucket": [
+      "code",
+      "handler",
+      "le",
+      "method",
+      "path"
+    ],
+    "http_request_duration_seconds_count": [
+      "code",
+      "container",
+      "method",
+      "path"
+    ],
+    "http_requests_total": [
+      "code",
+      "container",
+      "method",
+      "path"
+    ],
+    "http_server_request_duration_seconds_bucket": [
+      "le",
+      "method",
+      "path",
+      "status"
+    ],
+    "kube_node_info": [
+      "internal_ip",
+      "node"
+    ],
+    "kube_pod_container_resource_requests": [
+      "namespace",
+      "pod",
+      "resource"
+    ],
+    "kube_pod_info": [
+      "created_by_kind",
+      "node",
+      "pod"
+    ],
+    "kube_pod_status_ready": [
+      "pod"
+    ]
+  },
+  "test-with-minus.com": {
+    "ingest_pressure": [
+      "service",
+      "time_window"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+/target
+proptest-regressions
+temp
+.DS_Store
+node_modules/
+test-results/
+packages/mpl/
+packages/mpl-codemirror/dist/

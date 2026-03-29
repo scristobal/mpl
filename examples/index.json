@@ -1,0 +1,20 @@
+[
+  "align-rate.mpl",
+  "as.mpl",
+  "enrich.mpl",
+  "filtered-histogram.mpl",
+  "histogram.mpl",
+  "histogram_rate.mpl",
+  "map-gt.mpl",
+  "map-mul.mpl",
+  "nested-enrich.mpl",
+  "params.mpl",
+  "parser-error.mpl",
+  "rate.mpl",
+  "replace_labels.mpl",
+  "set.mpl",
+  "slo-histogram.mpl",
+  "slo-ingest-rate.mpl",
+  "slo.mpl",
+  "sum_rate.mpl"
+]

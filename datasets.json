@@ -129,7 +129,8 @@
           128,
           138,
           140
-        ]
+        ],
+        "name": "service=alertmanager, namespace=monitoring"
       },
       {
         "tags": {
@@ -259,7 +260,8 @@
           105,
           115,
           115
-        ]
+        ],
+        "name": "service=prometheus, namespace=monitoring"
       },
       {
         "tags": {
@@ -389,7 +391,8 @@
           81,
           72,
           71
-        ]
+        ],
+        "name": "service=grafana, namespace=observability"
       }
     ],
     "http_requests_total": [
@@ -523,7 +526,8 @@
           124,
           116,
           125
-        ]
+        ],
+        "name": "method=GET, path=/api/v1/ingest, code=200, container=ingest-pod"
       },
       {
         "tags": {
@@ -655,7 +659,8 @@
           100,
           93,
           101
-        ]
+        ],
+        "name": "method=GET, path=/api/v1/ingest, code=200, container=api-pod"
       },
       {
         "tags": {
@@ -787,7 +792,8 @@
           74,
           68,
           74
-        ]
+        ],
+        "name": "method=GET, path=/api/v1/ingest, code=404, container=ingest-pod"
       },
       {
         "tags": {
@@ -919,7 +925,8 @@
           92,
           88,
           91
-        ]
+        ],
+        "name": "method=GET, path=/api/v1/ingest, code=404, container=api-pod"
       },
       {
         "tags": {
@@ -1051,7 +1058,8 @@
           88,
           85,
           87
-        ]
+        ],
+        "name": "method=GET, path=/api/v1/traces, code=200, container=ingest-pod"
       },
       {
         "tags": {
@@ -1183,7 +1191,8 @@
           89,
           88,
           87
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/traces, code=200, container=api-pod"
       },
       {
         "tags": {
@@ -1315,7 +1324,8 @@
           140,
           140,
           137
-        ]
+        ],
+        "name": "method=GET, path=/healthz, code=200, container=ingest-pod"
       },
       {
         "tags": {
@@ -1447,7 +1457,8 @@
           25,
           26,
           21
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=500, container=login-pod"
       }
     ],
     "transport_request_duration_seconds_bucket": [
@@ -1580,7 +1591,8 @@
           132,
           134,
           128
-        ]
+        ],
+        "name": "status=200, handler=ingest, le=0.1"
       },
       {
         "tags": {
@@ -1711,7 +1723,8 @@
           128,
           131,
           123
-        ]
+        ],
+        "name": "status=200, handler=ingest, le=0.5"
       },
       {
         "tags": {
@@ -1842,7 +1855,8 @@
           104,
           109,
           119
-        ]
+        ],
+        "name": "status=200, handler=ingest, le=1.0"
       },
       {
         "tags": {
@@ -1973,7 +1987,8 @@
           103,
           108,
           116
-        ]
+        ],
+        "name": "status=200, handler=query, le=0.5"
       },
       {
         "tags": {
@@ -2104,7 +2119,8 @@
           216,
           223,
           229
-        ]
+        ],
+        "name": "status=500, handler=ingest, le=0.5"
       },
       {
         "tags": {
@@ -2235,7 +2251,8 @@
           112,
           120,
           125
-        ]
+        ],
+        "name": "status=500, handler=query, le=0.5"
       }
     ]
   },
@@ -2370,7 +2387,8 @@
           23,
           24,
           31
-        ]
+        ],
+        "name": "cache_name=redis-main, region=us-east-1, deployment.environment=production"
       },
       {
         "tags": {
@@ -2501,7 +2519,8 @@
           99,
           101,
           106
-        ]
+        ],
+        "name": "cache_name=redis-main, region=eu-west-1, deployment.environment=production"
       },
       {
         "tags": {
@@ -2632,7 +2651,8 @@
           95,
           98,
           102
-        ]
+        ],
+        "name": "cache_name=memcached, region=us-east-1, deployment.environment=staging"
       }
     ],
     "error.rate": [
@@ -2765,7 +2785,8 @@
           71,
           76,
           77
-        ]
+        ],
+        "name": "endpoint=/api/users, error_type=timeout, region=us-east-1"
       },
       {
         "tags": {
@@ -2896,7 +2917,8 @@
           47,
           53,
           52
-        ]
+        ],
+        "name": "endpoint=/api/orders, error_type=timeout, region=us-east-1"
       },
       {
         "tags": {
@@ -3027,7 +3049,8 @@
           184,
           190,
           188
-        ]
+        ],
+        "name": "endpoint=/api/orders, error_type=validation, region=eu-west-1"
       }
     ],
     "queue.depth": [
@@ -3159,7 +3182,8 @@
           135,
           132,
           125
-        ]
+        ],
+        "name": "queue_name=ingest, region=us-east-1"
       },
       {
         "tags": {
@@ -3289,7 +3313,8 @@
           131,
           129,
           140
-        ]
+        ],
+        "name": "queue_name=ingest, region=eu-west-1"
       },
       {
         "tags": {
@@ -3419,7 +3444,8 @@
           47,
           47,
           56
-        ]
+        ],
+        "name": "queue_name=notifications, region=us-east-1"
       }
     ],
     "request.latency_ms": [
@@ -3553,7 +3579,8 @@
           131,
           123,
           124
-        ]
+        ],
+        "name": "endpoint=/api/users, region=us-east-1, status_code=200, service.name=gateway"
       },
       {
         "tags": {
@@ -3685,7 +3712,8 @@
           127,
           121,
           119
-        ]
+        ],
+        "name": "endpoint=/api/users, region=eu-west-1, status_code=200, service.name=gateway"
       },
       {
         "tags": {
@@ -3817,7 +3845,8 @@
           83,
           78,
           74
-        ]
+        ],
+        "name": "endpoint=/api/orders, region=us-east-1, status_code=200, service.name=orders"
       },
       {
         "tags": {
@@ -3949,7 +3978,8 @@
           99,
           95,
           90
-        ]
+        ],
+        "name": "endpoint=/api/orders, region=us-east-1, status_code=500, service.name=orders"
       }
     ]
   },
@@ -4084,7 +4114,8 @@
           112,
           108,
           110
-        ]
+        ],
+        "name": "db.system=postgresql, db.statement=SELECT, service.name=api"
       },
       {
         "tags": {
@@ -4215,7 +4246,8 @@
           88,
           85,
           86
-        ]
+        ],
+        "name": "db.system=postgresql, db.statement=INSERT, service.name=api"
       },
       {
         "tags": {
@@ -4346,7 +4378,8 @@
           144,
           143,
           141
-        ]
+        ],
+        "name": "db.system=redis, db.statement=GET, service.name=cache"
       }
     ],
     "http_requests_total": [
@@ -4480,7 +4513,8 @@
           160,
           167,
           163
-        ]
+        ],
+        "name": "method=GET, status=200, service.name=frontend, deployment.environment=production"
       },
       {
         "tags": {
@@ -4612,7 +4646,8 @@
           116,
           125,
           118
-        ]
+        ],
+        "name": "method=GET, status=500, service.name=frontend, deployment.environment=production"
       },
       {
         "tags": {
@@ -4744,7 +4779,8 @@
           112,
           122,
           114
-        ]
+        ],
+        "name": "method=POST, status=200, service.name=api, deployment.environment=production"
       },
       {
         "tags": {
@@ -4876,7 +4912,8 @@
           128,
           119,
           129
-        ]
+        ],
+        "name": "method=POST, status=200, service.name=api, deployment.environment=staging"
       }
     ],
     "rpc_duration": [
@@ -5010,7 +5047,8 @@
           144,
           136,
           144
-        ]
+        ],
+        "name": "method=GetUser, service.name=users, rpc.system=grpc, net.peer.name=users-svc"
       },
       {
         "tags": {
@@ -5142,7 +5180,8 @@
           80,
           74,
           80
-        ]
+        ],
+        "name": "method=CreateOrder, service.name=orders, rpc.system=grpc, net.peer.name=orders-svc"
       },
       {
         "tags": {
@@ -5274,7 +5313,8 @@
           196,
           191,
           195
-        ]
+        ],
+        "name": "method=GetUser, service.name=users, rpc.system=grpc, net.peer.name=users-svc-backup"
       }
     ],
     "runtime.gc_pause": [
@@ -5406,7 +5446,8 @@
           160,
           160,
           156
-        ]
+        ],
+        "name": "service.name=frontend, deployment.environment=production"
       },
       {
         "tags": {
@@ -5536,7 +5577,8 @@
           96,
           97,
           92
-        ]
+        ],
+        "name": "service.name=api, deployment.environment=production"
       },
       {
         "tags": {
@@ -5666,7 +5708,8 @@
           232,
           234,
           227
-        ]
+        ],
+        "name": "service.name=api, deployment.environment=staging"
       }
     ]
   },
@@ -5801,7 +5844,8 @@
           113,
           111,
           108
-        ]
+        ],
+        "name": "namespace=default, pod=web-abc, container=web"
       },
       {
         "tags": {
@@ -5932,7 +5976,8 @@
           69,
           69,
           63
-        ]
+        ],
+        "name": "namespace=default, pod=ingest-xyz, container=ingest"
       },
       {
         "tags": {
@@ -6063,7 +6108,8 @@
           185,
           186,
           179
-        ]
+        ],
+        "name": "namespace=monitoring, pod=prom-001, container=prometheus"
       }
     ],
     "http_request_duration_seconds_bucket": [
@@ -6198,7 +6244,8 @@
           101,
           105,
           104
-        ]
+        ],
+        "name": "method=GET, path=/api, code=200, le=0.1, handler=query"
       },
       {
         "tags": {
@@ -6331,7 +6378,8 @@
           77,
           82,
           79
-        ]
+        ],
+        "name": "method=GET, path=/api, code=200, le=0.5, handler=query"
       },
       {
         "tags": {
@@ -6464,7 +6512,8 @@
           93,
           99,
           95
-        ]
+        ],
+        "name": "method=GET, path=/api, code=200, le=1.0, handler=query"
       },
       {
         "tags": {
@@ -6597,7 +6646,8 @@
           169,
           176,
           170
-        ]
+        ],
+        "name": "method=POST, path=/ingest, code=200, le=0.5, handler=ingest"
       },
       {
         "tags": {
@@ -6730,7 +6780,8 @@
           65,
           74,
           65
-        ]
+        ],
+        "name": "method=POST, path=/ingest, code=500, le=0.5, handler=ingest"
       }
     ],
     "http_request_duration_seconds_count": [
@@ -6864,7 +6915,8 @@
           233,
           229,
           226
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=200, container=ingest-pod"
       },
       {
         "tags": {
@@ -6996,7 +7048,8 @@
           314,
           312,
           314
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=500, container=ingest-pod"
       },
       {
         "tags": {
@@ -7128,7 +7181,8 @@
           134,
           135,
           142
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=200, container=ingest-pod"
       },
       {
         "tags": {
@@ -7260,7 +7314,8 @@
           94,
           98,
           91
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=500, container=ingest-pod"
       },
       {
         "tags": {
@@ -7392,7 +7447,8 @@
           175,
           181,
           179
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=200, container=api-pod"
       },
       {
         "tags": {
@@ -7524,7 +7580,8 @@
           255,
           264,
           268
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=500, container=api-pod"
       },
       {
         "tags": {
@@ -7656,7 +7713,8 @@
           236,
           247,
           256
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=200, container=api-pod"
       },
       {
         "tags": {
@@ -7788,7 +7846,8 @@
           236,
           230,
           225
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=500, container=api-pod"
       },
       {
         "tags": {
@@ -7920,7 +7979,8 @@
           296,
           292,
           293
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=200, container=login-pod"
       },
       {
         "tags": {
@@ -8052,7 +8112,8 @@
           317,
           315,
           322
-        ]
+        ],
+        "name": "method=POST, path=/api/v1/ingest, code=500, container=login-pod"
       },
       {
         "tags": {
@@ -8184,7 +8245,8 @@
           157,
           158,
           150
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=200, container=login-pod"
       },
       {
         "tags": {
@@ -8316,7 +8378,8 @@
           97,
           101,
           99
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=500, container=login-pod"
       }
     ],
     "http_requests_total": [
@@ -8450,7 +8513,8 @@
           128,
           125,
           120
-        ]
+        ],
+        "name": "method=GET, path=/api/users, code=200, container=web-1"
       },
       {
         "tags": {
@@ -8582,7 +8646,8 @@
           108,
           107,
           108
-        ]
+        ],
+        "name": "method=GET, path=/api/users, code=200, container=web-2"
       },
       {
         "tags": {
@@ -8714,7 +8779,8 @@
           128,
           130,
           137
-        ]
+        ],
+        "name": "method=POST, path=/api/orders, code=201, container=web-1"
       },
       {
         "tags": {
@@ -8846,7 +8912,8 @@
           229,
           233,
           225
-        ]
+        ],
+        "name": "method=POST, path=/api/orders, code=201, container=web-2"
       },
       {
         "tags": {
@@ -8978,7 +9045,8 @@
           229,
           236,
           234
-        ]
+        ],
+        "name": "method=GET, path=/api/search, code=200, container=web-1"
       },
       {
         "tags": {
@@ -9110,7 +9178,8 @@
           309,
           319,
           322
-        ]
+        ],
+        "name": "method=GET, path=/api/search, code=301, container=web-2"
       },
       {
         "tags": {
@@ -9242,7 +9311,8 @@
           230,
           222,
           231
-        ]
+        ],
+        "name": "method=GET, path=/api/users, code=404, container=web-1"
       },
       {
         "tags": {
@@ -9374,7 +9444,8 @@
           310,
           305,
           299
-        ]
+        ],
+        "name": "method=POST, path=/api/orders, code=500, container=web-2"
       },
       {
         "tags": {
@@ -9506,7 +9577,8 @@
           191,
           188,
           188
-        ]
+        ],
+        "name": "method=POST, path=/v1/traces, code=200, container=web-1"
       },
       {
         "tags": {
@@ -9638,7 +9710,8 @@
           131,
           131,
           136
-        ]
+        ],
+        "name": "method=POST, path=/elastic/_bulk, code=200, container=web-2"
       }
     ],
     "http_server_request_duration_seconds_bucket": [
@@ -9772,7 +9845,8 @@
           129,
           122,
           127
-        ]
+        ],
+        "name": "method=GET, path=/api, le=0.1, status=200"
       },
       {
         "tags": {
@@ -9904,7 +9978,8 @@
           165,
           160,
           162
-        ]
+        ],
+        "name": "method=GET, path=/api, le=0.5, status=200"
       },
       {
         "tags": {
@@ -10036,7 +10111,8 @@
           81,
           77,
           77
-        ]
+        ],
+        "name": "method=GET, path=/api, le=1.0, status=200"
       },
       {
         "tags": {
@@ -10168,7 +10244,8 @@
           117,
           114,
           113
-        ]
+        ],
+        "name": "method=POST, path=/ingest, le=0.5, status=200"
       }
     ],
     "kube_node_info": [
@@ -10300,7 +10377,8 @@
           142,
           136,
           127
-        ]
+        ],
+        "name": "node=node-1, internal_ip=10.0.0.1"
       },
       {
         "tags": {
@@ -10430,7 +10508,8 @@
           58,
           53,
           63
-        ]
+        ],
+        "name": "node=node-2, internal_ip=10.0.0.2"
       }
     ],
     "kube_pod_container_resource_requests": [
@@ -10563,7 +10642,8 @@
           61,
           63,
           74
-        ]
+        ],
+        "name": "namespace=default, pod=web-abc, resource=cpu"
       },
       {
         "tags": {
@@ -10694,7 +10774,8 @@
           57,
           60,
           69
-        ]
+        ],
+        "name": "namespace=default, pod=web-abc, resource=memory"
       },
       {
         "tags": {
@@ -10825,7 +10906,8 @@
           93,
           98,
           105
-        ]
+        ],
+        "name": "namespace=default, pod=ingest-xyz, resource=cpu"
       },
       {
         "tags": {
@@ -10956,7 +11038,8 @@
           89,
           95,
           100
-        ]
+        ],
+        "name": "namespace=monitoring, pod=prom-001, resource=cpu"
       }
     ],
     "kube_pod_info": [
@@ -11089,7 +11172,8 @@
           134,
           144,
           141
-        ]
+        ],
+        "name": "pod=web-abc, node=node-1, created_by_kind=ReplicaSet"
       },
       {
         "tags": {
@@ -11220,7 +11304,8 @@
           170,
           161,
           157
-        ]
+        ],
+        "name": "pod=ingest-xyz, node=node-2, created_by_kind=ReplicaSet"
       },
       {
         "tags": {
@@ -11351,7 +11436,8 @@
           46,
           38,
           32
-        ]
+        ],
+        "name": "pod=prom-001, node=node-1, created_by_kind=StatefulSet"
       }
     ],
     "kube_pod_status_ready": [
@@ -11482,7 +11568,8 @@
           45,
           52,
           55
-        ]
+        ],
+        "name": "pod=web-abc"
       },
       {
         "tags": {
@@ -11611,7 +11698,8 @@
           141,
           149,
           151
-        ]
+        ],
+        "name": "pod=ingest-xyz"
       },
       {
         "tags": {
@@ -11740,7 +11828,8 @@
           98,
           107,
           106
-        ]
+        ],
+        "name": "pod=prom-001"
       }
     ]
   },
@@ -11873,7 +11962,8 @@
           154,
           150,
           158
-        ]
+        ],
+        "name": "tag=a"
       },
       {
         "tags": {
@@ -12002,7 +12092,8 @@
           90,
           87,
           93
-        ]
+        ],
+        "name": "tag=b"
       },
       {
         "tags": {
@@ -12131,7 +12222,8 @@
           66,
           65,
           69
-        ]
+        ],
+        "name": "tag=c"
       }
     ]
   },
@@ -12265,7 +12357,8 @@
           197,
           189,
           186
-        ]
+        ],
+        "name": "time_window=1m, service=axiomdb-a"
       },
       {
         "tags": {
@@ -12395,7 +12488,8 @@
           73,
           67,
           61
-        ]
+        ],
+        "name": "time_window=5m, service=axiomdb-a"
       },
       {
         "tags": {
@@ -12525,7 +12619,8 @@
           109,
           104,
           97
-        ]
+        ],
+        "name": "time_window=1m, service=axiomdb-g"
       },
       {
         "tags": {
@@ -12655,7 +12750,8 @@
           105,
           101,
           112
-        ]
+        ],
+        "name": "time_window=5m, service=axiomdb-g"
       },
       {
         "tags": {
@@ -12785,7 +12881,8 @@
           158,
           151,
           149
-        ]
+        ],
+        "name": "time_window=1m, service=axiomdb-c"
       },
       {
         "tags": {
@@ -12915,7 +13012,8 @@
           88,
           80,
           73
-        ]
+        ],
+        "name": "time_window=1m, service=axiomdb-f"
       },
       {
         "tags": {
@@ -13045,7 +13143,8 @@
           118,
           113,
           112
-        ]
+        ],
+        "name": "time_window=5m, service=axiomdb-a"
       },
       {
         "tags": {
@@ -13175,7 +13274,8 @@
           66,
           60,
           55
-        ]
+        ],
+        "name": "time_window=5m, service=axiomdb-c"
       }
     ]
   }

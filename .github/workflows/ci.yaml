@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+env:
+  BINARYEN_VERSION: "126"
+  WASM_BINDGEN_VERSION: "0.2.117"
+
 jobs:
   format-rust:
     name: cargo fmt
@@ -60,7 +64,7 @@ jobs:
         env:
           RUSTFLAGS: -D warnings
         run: |
-          cargo llvm-cov --locked --no-report nextest --profile ci --no-default-features --features playground
+          cargo llvm-cov --locked --no-report nextest --profile ci --no-default-features --features wasm-compiler
           cargo llvm-cov report --locked --lcov --output-path lcov-wasm.txt
       - name: Upload coverage to Codecov
         if: github.event.pull_request.user.login != 'dependabot[bot]'
@@ -76,16 +80,45 @@ jobs:
             flags: wasm
             fail_ci_if_error: ${{ github.event_name == 'pull_request' }}
             verbose: true
-  test-typescript:
+  check-mpl-codemirror:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+      - run: cargo install --locked wasm-bindgen-cli@${{ env.WASM_BINDGEN_VERSION }}
       - uses: actions/setup-node@v6
+      - name: Install binaryen
+        run: |
+          curl -fsSL "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/binaryen-version_${BINARYEN_VERSION}-x86_64-linux.tar.gz" | tar xz
+          echo "$PWD/binaryen-version_${BINARYEN_VERSION}/bin" >> "$GITHUB_PATH"
       - run: npm ci
+        working-directory: packages/mpl-codemirror
+      - run: npm run build:wasm
+        working-directory: packages/mpl-codemirror
+      - run: npm run check
         working-directory: packages/mpl-codemirror
       - run: npm test
         working-directory: packages/mpl-codemirror
-  build-wasm:
+  build-wasm-codemirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+      - run: cargo install --locked wasm-bindgen-cli@${{ env.WASM_BINDGEN_VERSION }}
+      - uses: actions/setup-node@v6
+      - name: Install binaryen
+        run: |
+          curl -fsSL "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/binaryen-version_${BINARYEN_VERSION}-x86_64-linux.tar.gz" | tar xz
+          echo "$PWD/binaryen-version_${BINARYEN_VERSION}/bin" >> "$GITHUB_PATH"
+      - name: Build wasm (wasm-codemirror)
+        run: packages/mpl-codemirror/build-wasm.sh
+      - name: Test wasm-codemirror build against sample queries
+        run: node tests/wasm/test-wasm-codemirror.mjs packages/mpl-codemirror/wasm
+  build-wasm-compiler:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -94,34 +127,14 @@ jobs:
           target: wasm32-unknown-unknown
       - run: cargo install --locked wasm-pack
       - uses: actions/setup-node@v6
-      - name: Build wasm
+      - name: Build wasm (wasm-compiler)
         # --no-opt: wasm-pack's bundled wasm-opt crashes, and even system wasm-opt
         # increases gzipped size (our wasm-release profile already optimizes well).
-        run: wasm-pack build --scope axiomhq --target web --profile wasm-release --no-opt --no-default-features --features wasm
+        run: wasm-pack build --scope axiomhq --target web --profile wasm-release --no-opt --no-default-features --features wasm-compiler
       - run: npm install typescript
         working-directory: pkg
-      - name: Check TypeScript types
+      - name: Check TypeScript types (wasm-compiler)
         run: npx tsc --noEmit -t esnext mpl_lang.d.ts
         working-directory: pkg
-      - name: Test wasm build against sample queries
-        run: node tests/wasm/test-wasm.mjs
-  build-wasm-playground:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          target: wasm32-unknown-unknown
-      - run: cargo install --locked wasm-pack
-      - uses: actions/setup-node@v6
-      - name: Build wasm (playground)
-        # --no-opt: wasm-pack's bundled wasm-opt crashes, and even system wasm-opt
-        # increases gzipped size (our wasm-release profile already optimizes well).
-        run: wasm-pack build --scope axiomhq --target web --profile wasm-release --no-opt --no-default-features --features playground
-      - run: npm install typescript
-        working-directory: pkg
-      - name: Check TypeScript types (playground)
-        run: npx tsc --noEmit -t esnext mpl_lang.d.ts
-        working-directory: pkg
-      - name: Test playground build against sample queries
-        run: node tests/wasm/test-playground.mjs
+      - name: Test wasm-compiler build against sample queries
+        run: node tests/wasm/test-wasm-compiler.mjs

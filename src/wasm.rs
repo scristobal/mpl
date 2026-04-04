@@ -2,6 +2,7 @@
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 
+#[cfg(feature = "wasm-compiler")]
 use crate::{compile, query::Query};
 
 mod completions;
@@ -10,7 +11,7 @@ mod lints;
 mod tokenize;
 mod visit;
 
-#[cfg(feature = "playground")]
+#[cfg(feature = "wasm-compiler")]
 fn format_error(source: &str, error: impl miette::Diagnostic + Send + Sync + 'static) -> String {
     use miette::{GraphicalReportHandler, GraphicalTheme, NamedSource};
 
@@ -27,14 +28,14 @@ fn format_error(source: &str, error: impl miette::Diagnostic + Send + Sync + 'st
     }
 }
 
-#[cfg(feature = "playground")]
+#[cfg(feature = "wasm-compiler")]
 /// Parses a query string into a Query object.
 #[wasm_bindgen]
 pub fn parse_wasm(query: &str) -> Result<Query, String> {
     compile(query).map_err(|e| format_error(query, e))
 }
 
-#[cfg(feature = "playground")]
+#[cfg(feature = "wasm-compiler")]
 /// Parses a query string into a JSON representation of the Query object.
 #[wasm_bindgen]
 pub fn parse_json(query: &str) -> Result<String, String> {
@@ -43,7 +44,7 @@ pub fn parse_json(query: &str) -> Result<String, String> {
         .map_err(|e| format!("Failed to serialize to JSON: {e}"))
 }
 
-#[cfg(feature = "playground")]
+#[cfg(feature = "wasm-compiler")]
 /// Parses a query string into a RON representation of the Query object.
 #[wasm_bindgen]
 pub fn parse_ron(query: &str) -> Result<String, String> {
@@ -52,6 +53,7 @@ pub fn parse_ron(query: &str) -> Result<String, String> {
         .map_err(|e| format!("Failed to serialize to RON: {e}"))
 }
 
+#[cfg(feature = "wasm-compiler")]
 /// Extracts the dataset name from an `MPL` query string.
 ///
 /// For `Simple` queries, returns the dataset from the source.
@@ -70,6 +72,7 @@ pub fn extract_dataset(query: &str) -> Option<String> {
     Some(get_dataset(&parsed))
 }
 
+#[cfg(feature = "wasm-compiler")]
 /// Converts a JSON representation of a Query back to `MPL` query string
 #[wasm_bindgen]
 pub fn print_json(query: &str) -> Result<String, String> {
@@ -78,7 +81,7 @@ pub fn print_json(query: &str) -> Result<String, String> {
     Ok(query.to_string())
 }
 
-#[cfg(feature = "playground")]
+#[cfg(feature = "wasm-compiler")]
 /// Converts a RON representation of a Query back to `MPL` query string
 #[wasm_bindgen]
 pub fn print_ron(query: &str) -> Result<String, String> {

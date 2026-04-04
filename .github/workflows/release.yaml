@@ -21,7 +21,7 @@ jobs:
 
           export RELEASE_VERSION="${GITHUB_REF#refs/*/v}"
           export CRATE_VERSION="$(cargo metadata --no-deps --format-version 1 | jq -r .packages[0].version)"
-          export CODEMIRROR_VERSION="$(jq -r .version packages/mpl-codemirror/package.json)"
+          export CODEMIRROR_VERSION="$(jq -r .version packages/mpl-lang-codemirror/package.json)"
           if [ "$CRATE_VERSION" != "$RELEASE_VERSION" ]; then
             echo "Version mismatch! Release is at $RELEASE_VERSION, crate is at $CRATE_VERSION"
             exit 1
@@ -40,13 +40,13 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: packages/mpl-codemirror/package-lock.json
+          cache-dependency-path: packages/mpl-lang-codemirror/package-lock.json
           registry-url: https://registry.npmjs.org
           scope: "@axiomhq"
       - name: Install wasm-pack
         run: cargo install wasm-pack --locked
       - name: Build WASM
-        run: wasm-pack build --out-name mpl --out-dir packages/mpl --scope axiomhq --target web --profile wasm-release --no-opt --features wasm 
+        run: wasm-pack build --out-name mpl --out-dir packages/mpl-lang --scope axiomhq --target web --profile wasm-release --no-opt --features wasm-codemirror
       - name: Update mpl package.json
         run: |
           set -euo pipefail
@@ -55,23 +55,23 @@ jobs:
             .name = "@axiomhq/mpl"
             | .files = ["mpl.js", "mpl.d.ts", "mpl_bg.wasm", "mpl_bg.wasm.d.ts", "LICENSE-MIT", "LICENSE-APACHE"]
             | .repository.url = "git+https://github.com/axiomhq/mpl.git"
-          ' packages/mpl/package.json > packages/mpl/package.json.tmp
-          mv packages/mpl/package.json.tmp packages/mpl/package.json
+          ' packages/mpl-lang/package.json > packages/mpl-lang/package.json.tmp
+          mv packages/mpl-lang/package.json.tmp packages/mpl-lang/package.json
       - name: Type-check WASM bindings
-        working-directory: packages/mpl
+        working-directory: packages/mpl-lang
         run: |
           npm install --no-save typescript
           npx tsc --noEmit -t esnext mpl.d.ts
       - name: Build mpl-codemirror
-        working-directory: packages/mpl-codemirror
+        working-directory: packages/mpl-lang-codemirror
         run: npm install && npm run build
       - name: Publish mpl to npmjs.org
-        working-directory: packages/mpl
+        working-directory: packages/mpl-lang
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
         run: npm publish --access public
       - name: Publish mpl-codemirror to npmjs.org
-        working-directory: packages/mpl-codemirror
+        working-directory: packages/mpl-lang-codemirror
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
         run: npm publish --access public

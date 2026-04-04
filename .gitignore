@@ -4,5 +4,6 @@ temp
 .DS_Store
 node_modules/
 test-results/
-packages/mpl/
+packages/mpl-lang/
 packages/mpl-codemirror/dist/
+packages/mpl-codemirror/wasm/

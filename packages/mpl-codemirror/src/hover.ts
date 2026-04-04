@@ -1,9 +1,5 @@
 import { hoverTooltip, type EditorView, type Tooltip } from "@codemirror/view";
-import {
-  type WasmFunctionInfo,
-  formatArgType,
-  getFunctionInfo,
-} from "./wasm-types";
+import { type WasmFunctionInfo, formatArgType, getFunctionInfo } from "./wasm-types";
 
 interface KeywordDoc {
   description: string;
@@ -71,8 +67,7 @@ function extractWordAt(
 ): { text: string; from: number; to: number } | null {
   if (pos < 0 || pos >= doc.length) return null;
 
-  const isIdChar = (i: number) =>
-    i >= 0 && i < doc.length && /[\w]/.test(doc[i]);
+  const isIdChar = (i: number) => i >= 0 && i < doc.length && /[\w]/.test(doc[i]);
 
   if (!isIdChar(pos)) return null;
 
@@ -173,11 +168,7 @@ function renderKeywordTooltip(keyword: string, doc: KeywordDoc): HTMLElement {
   return dom;
 }
 
-function hoverSource(
-  _view: EditorView,
-  pos: number,
-  _side: -1 | 1,
-): Tooltip | null {
+function hoverSource(_view: EditorView, pos: number, _side: -1 | 1): Tooltip | null {
   const doc = _view.state.doc.toString();
   const word = extractWordAt(doc, pos);
   if (!word) return null;

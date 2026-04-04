@@ -1,11 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CharCategory, EditorState } from "@codemirror/state";
-import {
-  needsEscape,
-  escapeIdent,
-  applyTextForIdent,
-  mplWordChars,
-} from "./completions";
+import { needsEscape, escapeIdent, applyTextForIdent, mplWordChars } from "./completions";
 
 describe("mplWordChars", () => {
   it("classifies backtick and $ as word characters", () => {

@@ -380,8 +380,14 @@ pub trait MapFunctionTrait:
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "wasm", derive(tsify::Tsify))]
-#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    derive(tsify::Tsify)
+)]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    tsify(into_wasm_abi, from_wasm_abi)
+)]
 /// A map functio wrapper
 pub enum MapFunction {
     /// A builtin function
@@ -441,8 +447,14 @@ pub trait AlignFunctionTrait:
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "wasm", derive(tsify::Tsify))]
-#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    derive(tsify::Tsify)
+)]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    tsify(into_wasm_abi, from_wasm_abi)
+)]
 /// A align function wrapper
 pub enum AlignFunction {
     /// A builtin function
@@ -500,8 +512,14 @@ pub trait GroupFunctionTrait:
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "wasm", derive(tsify::Tsify))]
-#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    derive(tsify::Tsify)
+)]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    tsify(into_wasm_abi, from_wasm_abi)
+)]
 /// A group-by function wrapper
 pub enum GroupFunction {
     /// A builtin function
@@ -558,8 +576,14 @@ pub trait ComputeFunctionTrait:
     fn box_clone(&self) -> Box<dyn ComputeFunctionTrait>;
 }
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
-#[cfg_attr(feature = "wasm", derive(tsify::Tsify))]
-#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    derive(tsify::Tsify)
+)]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    tsify(into_wasm_abi, from_wasm_abi)
+)]
 /// A compute function wrapper
 pub enum ComputeFunction {
     /// A builtin function

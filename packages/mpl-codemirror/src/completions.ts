@@ -1,6 +1,6 @@
 import { autocompletion, CompletionContext, CompletionResult } from "@codemirror/autocomplete";
 import { EditorState } from "@codemirror/state";
-import * as mpl from "@axiomhq/mpl-lang";
+import * as mpl from "../wasm/mpl_lang";
 import { type WasmArgType, formatArgs } from "./wasm-types";
 import { CompletionCache } from "./completion-cache";
 
@@ -31,7 +31,12 @@ interface WasmKeywordResult {
 }
 
 interface WasmFunctionResult {
-  kind: "align_functions" | "map_functions" | "group_functions" | "bucket_functions" | "compute_functions";
+  kind:
+    | "align_functions"
+    | "map_functions"
+    | "group_functions"
+    | "bucket_functions"
+    | "compute_functions";
   from: number;
   to: number;
   options: WasmFunctionItem[];
@@ -58,7 +63,15 @@ interface WasmMetricCompletion {
   dataset: string;
 }
 
-type WasmParamType = "dataset" | "metric" | "duration" | "string" | "int" | "float" | "bool" | "regex";
+type WasmParamType =
+  | "dataset"
+  | "metric"
+  | "duration"
+  | "string"
+  | "int"
+  | "float"
+  | "bool"
+  | "regex";
 
 interface WasmParamItem {
   label: string;
@@ -102,7 +115,7 @@ function mplCompletionSource(context: CompletionContext): CompletionResult | nul
     return {
       from: result.from,
       to: result.to,
-      options: result.options.map(item => ({
+      options: result.options.map((item) => ({
         label: item.label,
         type: "variable" as const,
         detail: item.type,
@@ -117,7 +130,11 @@ function mplCompletionSource(context: CompletionContext): CompletionResult | nul
       from: result.from,
       to: result.to,
       options: [
-        { label: `<tag for ${result.dataset}:${result.metric}>`, type: "variable", info: "Tag completions not yet connected" },
+        {
+          label: `<tag for ${result.dataset}:${result.metric}>`,
+          type: "variable",
+          info: "Tag completions not yet connected",
+        },
       ],
       filter: false,
     };
@@ -141,7 +158,11 @@ function mplCompletionSource(context: CompletionContext): CompletionResult | nul
       from: result.from,
       to: result.to,
       options: [
-        { label: `<metric for ${result.dataset}>`, type: "variable", info: "Metric completions not yet connected" },
+        {
+          label: `<metric for ${result.dataset}>`,
+          type: "variable",
+          info: "Metric completions not yet connected",
+        },
       ],
       filter: false,
     };
@@ -156,7 +177,7 @@ function mplCompletionSource(context: CompletionContext): CompletionResult | nul
     return {
       from: result.from,
       to: result.to,
-      options: result.options.map(item => ({
+      options: result.options.map((item) => ({
         label: item.label,
         ...(item.apply ? { apply: item.apply } : {}),
         type: "keyword" as const,
@@ -169,7 +190,7 @@ function mplCompletionSource(context: CompletionContext): CompletionResult | nul
   return {
     from: result.from,
     to: result.to,
-    options: result.options.map(item => ({
+    options: result.options.map((item) => ({
       label: item.label,
       type: "function" as const,
       detail: formatArgs(item.args),
@@ -218,7 +239,7 @@ function createMplCompletionSource(config: MplCompletionConfig) {
       return {
         from: result.from,
         to: result.to,
-        options: result.options.map(item => ({
+        options: result.options.map((item) => ({
           label: item.label,
           type: "variable" as const,
           detail: item.type,
@@ -239,7 +260,7 @@ function createMplCompletionSource(config: MplCompletionConfig) {
         return {
           from: result.from,
           to: result.to,
-          options: tags.map(t => {
+          options: tags.map((t) => {
             const apply = applyTextForIdent(t, inBacktick);
             return apply !== t
               ? { label: t, apply, type: "variable" as const }
@@ -263,7 +284,7 @@ function createMplCompletionSource(config: MplCompletionConfig) {
         return {
           from: result.from,
           to: result.to,
-          options: datasets.map(d => {
+          options: datasets.map((d) => {
             const apply = applyTextForIdent(d, inBacktick);
             return apply !== d
               ? { label: d, apply, type: "variable" as const }
@@ -287,7 +308,7 @@ function createMplCompletionSource(config: MplCompletionConfig) {
         return {
           from: result.from,
           to: result.to,
-          options: metrics.map(m => {
+          options: metrics.map((m) => {
             const apply = applyTextForIdent(m, inBacktick);
             return apply !== m
               ? { label: m, apply, type: "variable" as const }
@@ -308,7 +329,7 @@ function createMplCompletionSource(config: MplCompletionConfig) {
       return {
         from: result.from,
         to: result.to,
-        options: result.options.map(item => ({
+        options: result.options.map((item) => ({
           label: item.label,
           ...(item.apply ? { apply: item.apply } : {}),
           type: "keyword" as const,
@@ -321,7 +342,7 @@ function createMplCompletionSource(config: MplCompletionConfig) {
     return {
       from: result.from,
       to: result.to,
-      options: result.options.map(item => ({
+      options: result.options.map((item) => ({
         label: item.label,
         type: "function" as const,
         detail: formatArgs(item.args),

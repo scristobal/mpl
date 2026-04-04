@@ -25,7 +25,10 @@ function findCallContext(doc: string, cursor: number): CallContext | null {
           // Count consecutive backslashes before this quote
           let bs = 0;
           let b = i - 1;
-          while (b >= 0 && doc[b] === '\\') { bs++; b--; }
+          while (b >= 0 && doc[b] === "\\") {
+            bs++;
+            b--;
+          }
           if (bs % 2 === 0) break; // unescaped opening quote
         }
         i--;
@@ -36,19 +39,19 @@ function findCallContext(doc: string, cursor: number): CallContext | null {
 
     // Skip regex literals: #/pattern/ or #s/src/dst/
     // When we hit a closing '/', scan backwards past the regex body to '#'
-    if (ch === '/') {
+    if (ch === "/") {
       const saved = i;
       let slashCount = 1;
       i--;
       while (i >= 0) {
-        if (doc[i] === '/' && (i === 0 || doc[i - 1] !== '\\')) {
+        if (doc[i] === "/" && (i === 0 || doc[i - 1] !== "\\")) {
           slashCount++;
-          if (i > 0 && doc[i - 1] === '#') {
+          if (i > 0 && doc[i - 1] === "#") {
             // #/pattern/
             i -= 2;
             break;
           }
-          if (i > 1 && doc[i - 1] === 's' && doc[i - 2] === '#') {
+          if (i > 1 && doc[i - 1] === "s" && doc[i - 2] === "#") {
             // #s/src/dst/
             i -= 3;
             break;
@@ -63,9 +66,9 @@ function findCallContext(doc: string, cursor: number): CallContext | null {
       continue;
     }
 
-    if (ch === ')') {
+    if (ch === ")") {
       depth++;
-    } else if (ch === '(') {
+    } else if (ch === "(") {
       if (depth === 0) {
         openParenPos = i;
         break;
@@ -81,7 +84,7 @@ function findCallContext(doc: string, cursor: number): CallContext | null {
   let labelEnd = openParenPos;
   // Skip whitespace before '('
   let j = labelEnd - 1;
-  while (j >= 0 && (doc[j] === ' ' || doc[j] === '\t')) j--;
+  while (j >= 0 && (doc[j] === " " || doc[j] === "\t")) j--;
 
   if (j < 0) return null;
 
@@ -101,26 +104,29 @@ function findCallContext(doc: string, cursor: number): CallContext | null {
   let innerDepth = 0;
   for (let k = openParenPos + 1; k < cursor; k++) {
     const c = doc[k];
-    if (c === '(') innerDepth++;
-    else if (c === ')') innerDepth--;
-    else if (c === ',' && innerDepth === 0) commaCount++;
+    if (c === "(") innerDepth++;
+    else if (c === ")") innerDepth--;
+    else if (c === "," && innerDepth === 0) commaCount++;
     else if (c === '"') {
       k++;
       while (k < cursor && doc[k] !== '"') {
-        if (doc[k] === '\\') k++;
+        if (doc[k] === "\\") k++;
         k++;
       }
-    } else if (c === '#' && k + 1 < cursor && doc[k + 1] === '/') {
+    } else if (c === "#" && k + 1 < cursor && doc[k + 1] === "/") {
       k += 2;
-      while (k < cursor && doc[k] !== '/') {
-        if (doc[k] === '\\') k++;
+      while (k < cursor && doc[k] !== "/") {
+        if (doc[k] === "\\") k++;
         k++;
       }
-    } else if (c === '#' && k + 2 < cursor && doc[k + 1] === 's' && doc[k + 2] === '/') {
+    } else if (c === "#" && k + 2 < cursor && doc[k + 1] === "s" && doc[k + 2] === "/") {
       k += 3;
-      for (let slashes = 0; k < cursor && slashes < 2;) {
-        if (doc[k] === '\\') { k++; }
-        else if (doc[k] === '/') { slashes++; }
+      for (let slashes = 0; k < cursor && slashes < 2; ) {
+        if (doc[k] === "\\") {
+          k++;
+        } else if (doc[k] === "/") {
+          slashes++;
+        }
         k++;
       }
       k--;
@@ -184,7 +190,4 @@ function getSignatureTooltip(state: EditorState): Tooltip | null {
   };
 }
 
-export const mplSignatureHelp = showTooltip.compute(
-  ["doc", "selection"],
-  getSignatureTooltip,
-);
+export const mplSignatureHelp = showTooltip.compute(["doc", "selection"], getSignatureTooltip);

@@ -5,7 +5,7 @@
  * Centralised here to avoid duplication across mpl-completions, mpl-hover,
  * and mpl-signature-help.
  */
-import * as mpl from "@axiomhq/mpl-lang";
+import * as mpl from "../wasm/mpl_lang";
 
 // ── WASM type definitions ──────────────────────────────────────
 
@@ -48,7 +48,7 @@ export function formatArgType(typ: WasmArgType): string {
 
 export function formatArgs(args: WasmFunctionArg[]): string | undefined {
   if (args.length === 0) return undefined;
-  return `(${args.map(a => `${a.name}: ${formatArgType(a.type)}`).join(", ")})`;
+  return `(${args.map((a) => `${a.name}: ${formatArgType(a.type)}`).join(", ")})`;
 }
 
 // ── function_info WASM lookup with cache ───────────────────────

@@ -1,6 +1,6 @@
 import { linter, type Diagnostic, type Action } from "@codemirror/lint";
 import { type EditorView } from "@codemirror/view";
-import * as mpl from "@axiomhq/mpl-lang";
+import * as mpl from "../wasm/mpl_lang";
 
 type Severity = "error" | "warning" | "info" | "hint";
 
@@ -22,7 +22,7 @@ interface WasmDiagnosticItem {
 
 function mapActions(wasmActions?: WasmDiagnosticAction[]): Action[] | undefined {
   if (!wasmActions || wasmActions.length === 0) return undefined;
-  return wasmActions.map(a => ({
+  return wasmActions.map((a) => ({
     name: a.name,
     apply(view: EditorView) {
       view.dispatch({ changes: { from: a.from, to: a.to, insert: a.insert } });
@@ -40,7 +40,7 @@ function mplLintSource(view: EditorView): Diagnostic[] {
     return [];
   }
 
-  return items.map(item => ({
+  return items.map((item) => ({
     from: item.from,
     to: Math.max(item.from + 1, item.to),
     severity: item.severity,

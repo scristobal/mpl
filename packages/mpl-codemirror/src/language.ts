@@ -1,8 +1,17 @@
 import { ViewPlugin, ViewUpdate, Decoration, DecorationSet, EditorView } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
-import * as mpl from "@axiomhq/mpl-lang";
+import * as mpl from "../wasm/mpl_lang";
 
-type TokenType = "variable" | "string" | "number" | "bool" | "regexp" | "operator" | "punctuation" | "keyword" | "type";
+type TokenType =
+  | "variable"
+  | "string"
+  | "number"
+  | "bool"
+  | "regexp"
+  | "operator"
+  | "punctuation"
+  | "keyword"
+  | "type";
 
 interface Token {
   from: number;
@@ -10,7 +19,8 @@ interface Token {
   type: TokenType;
 }
 
-const MPL_KEYWORDS = /\b(filter|where|map|group|by|using|align|to|over|from|bucket|join|compute|set|replace|as|and|or|not|is|param|rate|increase|histogram|interpolate_delta_histogram|interpolate_cumulative_histogram|count|avg|sum|min|max)\b/g;
+const MPL_KEYWORDS =
+  /\b(filter|where|map|group|by|using|align|to|over|from|bucket|join|compute|set|replace|as|and|or|not|is|param|rate|increase|histogram|interpolate_delta_histogram|interpolate_cumulative_histogram|count|avg|sum|min|max)\b/g;
 const COMMENT_RE = /\/\/[^\n]*/g;
 const STRING_RE = /"(?:[^"\\]|\\.)*"/g;
 const REGEX_RE = /#s?\/(?:[^/\\]|\\.)*(?:\/(?:[^/\\]|\\.)*)?\//g;
@@ -89,11 +99,7 @@ function buildDecorations(view: EditorView): DecorationSet {
   return resolveAndBuild(entries);
 }
 
-function findKeywordsInGaps(
-  doc: string,
-  occupied: [number, number][],
-  entries: TokenEntry[],
-) {
+function findKeywordsInGaps(doc: string, occupied: [number, number][], entries: TokenEntry[]) {
   MPL_KEYWORDS.lastIndex = 0;
   let m;
   while ((m = MPL_KEYWORDS.exec(doc)) !== null) {

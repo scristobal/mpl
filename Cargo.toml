@@ -63,10 +63,17 @@ clock = ["chrono/clock"]
 examples = []
 # for CLI tools
 cli = ["dep:clap", "dep:ron", "dep:arborium", "miette/fancy"]
-# for WASM bindings
-wasm = [
+# WebAssembly bindings for codemirror plugin
+wasm-codemirror = [
   "dep:wasm-bindgen",
   "dep:tsify",
   "dep:serde-wasm-bindgen",
 ]
-playground = ["wasm", "dep:ron", "miette/fancy"]
+# WebAssembly bindings for the playground compiler
+wasm-compiler = [
+  "dep:wasm-bindgen",
+  "dep:tsify",
+  "dep:serde-wasm-bindgen",
+  "dep:ron",
+  "miette/fancy",
+]

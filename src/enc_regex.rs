@@ -2,16 +2,25 @@
 use std::ops::Deref;
 
 use regex::Regex;
-#[cfg(feature = "wasm")]
+#[cfg(any(feature = "wasm-codemirror", feature = "wasm-compiler"))]
 use tsify::Tsify;
 
 /// A wrapper around `regex::Regex` that can be serialized and deserialized via bincode
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
-#[cfg_attr(feature = "wasm", derive(Tsify))]
-#[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    derive(Tsify)
+)]
+#[cfg_attr(
+    any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+    tsify(into_wasm_abi, from_wasm_abi)
+)]
 pub struct EncodableRegex(
     #[serde(with = "serde_regex")]
-    #[cfg_attr(feature = "wasm", tsify(type = "RegExp"))]
+    #[cfg_attr(
+        any(feature = "wasm-codemirror", feature = "wasm-compiler"),
+        tsify(type = "RegExp")
+    )]
     Regex,
 );
 impl PartialEq for EncodableRegex {

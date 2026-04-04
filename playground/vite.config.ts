@@ -12,7 +12,7 @@ export default defineConfig({
     alias: {
       '@axiomhq/mpl-codemirror/styles/tokens.css': path.resolve(__dirname, '../packages/mpl-codemirror/styles/tokens.css'),
       '@axiomhq/mpl-codemirror': path.resolve(__dirname, '../packages/mpl-codemirror/src/index.ts'),
-      '@axiomhq/mpl-lang': path.resolve(__dirname, '../packages/mpl/mpl_lang.js'),
+      '@axiomhq/mpl-lang': path.resolve(__dirname, '../packages/mpl-lang/mpl_lang.js'),
     },
     dedupe: [
       '@codemirror/state',

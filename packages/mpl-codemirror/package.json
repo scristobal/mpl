@@ -20,16 +20,30 @@
     ".": "./dist/index.js",
     "./styles/tokens.css": "./styles/tokens.css"
   },
+  "sideEffects": [
+    "./wasm/*"
+  ],
   "files": [
     "dist",
+    "wasm",
     "styles"
   ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build:wasm": "./build-wasm.sh",
+    "build:bundle": "vite build",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist",
+    "build": "run-s build:wasm build:bundle build:types",
+    "check:fmt": "oxfmt --check src",
+    "check:lint": "oxlint src",
+    "check:types": "tsc --noEmit",
+    "check": "run-p check:fmt check:lint check:types",
+    "fix:fmt": "oxfmt src",
+    "fix:lint": "oxlint --fix src",
+    "fix": "run-s fix:fmt fix:lint",
+    "clean": "rm -rf dist wasm",
     "test": "vitest run"
   },
   "devDependencies": {
@@ -37,14 +51,16 @@
     "@codemirror/lint": "^6",
     "@codemirror/state": "^6",
     "@codemirror/view": "^6",
-    "typescript": "^5.5.0",
+    "npm-run-all2": "^8.0.4",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vite-plugin-wasm": "^3.6.0",
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
     "@codemirror/autocomplete": "^6",
     "@codemirror/lint": "^6",
     "@codemirror/state": "^6",
-    "@codemirror/view": "^6",
-    "@axiomhq/mpl": "*"
+    "@codemirror/view": "^6"
   }
 }

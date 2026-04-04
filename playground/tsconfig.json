@@ -8,7 +8,7 @@
     "paths": {
       "@axiomhq/mpl-codemirror": ["../packages/mpl-codemirror/src/index.ts"],
       "@axiomhq/mpl-codemirror/*": ["../packages/mpl-codemirror/*"],
-      "@axiomhq/mpl-lang": ["../packages/mpl/mpl_lang.d.ts"]
+      "@axiomhq/mpl-lang": ["../packages/mpl-lang/mpl_lang.d.ts"]
     },
     "isolatedModules": true,
     "moduleDetection": "force",

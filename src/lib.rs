@@ -24,7 +24,7 @@ pub mod visitor;
 #[cfg(test)]
 mod tests;
 
-#[cfg(feature = "wasm")]
+#[cfg(any(feature = "wasm-codemirror", feature = "wasm-compiler"))]
 pub mod wasm;
 
 use std::collections::HashSet;

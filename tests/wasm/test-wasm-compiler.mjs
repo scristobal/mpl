@@ -1,13 +1,13 @@
 /**
- * Wasm integration test for --features playground build.
+ * Wasm integration test for --features wasm-compiler build.
  *
- * Uses parse_json() — only exported under --features playground — to verify:
+ * Uses parse_json() — only exported under --features wasm-compiler — to verify:
  *   - tests/examples/*.mpl  → parse without error (or throw only with
  *                             "not_supported" / "not_implemented", mirroring
  *                             the tolerance in tests/parse.rs)
  *   - tests/errors/*.mpl    → throw a hard parse error
  *
- * Usage: node tests/wasm/test-playground.mjs [pkg-dir]
+ * Usage: node tests/wasm/test-wasm-compiler.mjs [pkg-dir]
  *   pkg-dir defaults to "pkg" (relative to repo root)
  */
 
@@ -27,7 +27,7 @@ mpl.initSync({ module: wasmBytes });
 
 if (typeof mpl.parse_json !== "function") {
   console.error(
-    "ERROR: parse_json() not exported — was the build run with --features playground?"
+    "ERROR: parse_json() not exported — was the build run with --features wasm-compiler?"
   );
   process.exit(1);
 }

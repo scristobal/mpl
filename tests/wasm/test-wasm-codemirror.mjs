@@ -1,7 +1,7 @@
 /**
- * Wasm integration test for --features wasm (non-playground build).
+ * Wasm integration test for --features wasm-codemirror build.
  *
- * Uses diagnostics() — always exported under --features wasm — to verify:
+ * Uses diagnostics() — exported under --features wasm-codemirror — to verify:
  *   - tests/examples/*.mpl  → no hard parse errors (errors with "not supported" /
  *                             "not implemented" messages are acceptable, mirroring
  *                             the tolerance in tests/parse.rs)

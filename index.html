@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MPL Playground</title>
-    <script type="module" crossorigin src="/assets/index-BoAkHs1s.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-cecyHddz.css">
+    <script type="module" crossorigin src="/assets/index-BUQXaAkb.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CSq1YfeO.css">
   </head>
   <body>
     <!-- Alpine store wraps the entire app -->
@@ -44,8 +44,6 @@
           </svg>
         </button>
         <div class="header-spacer"></div>
-        <span class="kbd-hint"><kbd>Ctrl+E</kbd> toggle chart</span>
-        <span class="kbd-hint"><kbd>Ctrl+A</kbd> toggle all</span>
         <button
           type="button"
           class="icon-btn"
@@ -120,11 +118,12 @@
         </button>
       </div>
 
-      <!-- Editor container -->
       <div id="container">
         <div class="editor-wrapper">
           <div class="editor-container" x-init="$store.playground.initCodeEditor($el)"></div>
         </div>
+        <div id="divider"></div>
+        <div id="charts-panel" x-init="$store.playground.chartsPanel = $el"></div>
       </div>
     </div>
   </body>

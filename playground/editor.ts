@@ -13,14 +13,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { vim } from "@replit/codemirror-vim";
-import { loadDatasetIndex } from "./datasets";
-
-const completionConfig: MplCompletionConfig = {
-  datasets: async () => Object.keys(await loadDatasetIndex()),
-  metrics: async (dataset: string) => Object.keys((await loadDatasetIndex())[dataset] ?? {}),
-  tags: async (dataset: string, metric: string) =>
-    (await loadDatasetIndex())[dataset]?.[metric] ?? [],
-};
+import type { DatasetIndex } from "./datasource";
 
 export interface EditorInstance {
   view: EditorView;
@@ -33,7 +26,14 @@ export function createEditor(
   initialTheme: "dark" | "light",
   initialVim: boolean,
   onChange: () => void,
+  datasetIndex: DatasetIndex,
 ): EditorInstance {
+  const completionConfig: MplCompletionConfig = {
+    datasets: async () => Object.keys(datasetIndex),
+    metrics: async (dataset: string) => Object.keys(datasetIndex[dataset] ?? {}),
+    tags: async (dataset: string, metric: string) => datasetIndex[dataset]?.[metric] ?? [],
+  };
+
   const vimCompartment = new Compartment();
   const themeCompartment = new Compartment();
 

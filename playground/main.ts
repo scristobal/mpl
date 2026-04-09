@@ -1,11 +1,10 @@
 // Alpine.js store — glues editor, pipeline, and UI together.
 
-import init, { parse_steps } from "@axiomhq/mpl-lang";
+import wasmInit, { Interpreter } from "@axiomhq/mpl-lang";
 import Alpine from "alpinejs";
 import { renderCharts, type ChartEntry } from "./charts";
-import { initDatasets } from "./datasets";
+import { buildDatasetIndex, fetchDatasets, type DatasetIndex } from "./datasource";
 import { createEditor, type EditorInstance } from "./editor";
-import { interpret } from "./interpreter";
 
 type Theme = "light" | "dark" | "system";
 
@@ -16,22 +15,20 @@ function resolveTheme(theme: Theme): "dark" | "light" {
   return theme;
 }
 
-function updateCharts(panel: HTMLElement, doc: string) {
-  let result;
+function updateCharts(interp: Interpreter, panel: HTMLElement, doc: string) {
+  let steps;
+
   try {
-    result = parse_steps(doc);
+    steps = interp.run(doc);
   } catch (e) {
     renderCharts(panel, [{ label: doc.trim(), series: [], error: String(e) }]);
     return;
   }
 
-  const { steps: seriesSteps, errors } = interpret(result.steps);
-
-  const entries: ChartEntry[] = result.steps.map((step, i) => ({
-    label: step.canonical,
-    series: seriesSteps[i] ?? [],
-    error: errors[i],
-  }));
+  const entries: ChartEntry[] = steps.map((step) => {
+    if ("Err" in step.result) return { label: step.text, series: [], error: step.result.Err };
+    return { label: step.text, series: step.result.Ok };
+  });
 
   renderCharts(panel, entries);
 }
@@ -51,7 +48,10 @@ const playgroundStore = {
   theme: (localStorage.getItem("mpl-theme") as Theme) || "system",
   resolvedTheme: "light" as "dark" | "light",
   editor: null as EditorInstance | null,
+  editorEl: null as HTMLElement | null,
   chartsPanel: null as HTMLElement | null,
+  interpreter: null as Interpreter | null,
+  datasetIndex: null as DatasetIndex | null,
   isInitialized: false,
   selectedExampleIndex: 0,
   examples: [] as string[],
@@ -68,9 +68,20 @@ const playgroundStore = {
       });
 
       this.setupDivider();
-      this.examples = await loadExamples();
-      await Promise.all([init(), initDatasets()]);
+
+      const [, datasets] = await Promise.all([
+        wasmInit(),
+        fetchDatasets(),
+        loadExamples().then((e) => (this.examples = e)),
+      ]);
+      
+      this.interpreter = new Interpreter(datasets);
+      this.datasetIndex = buildDatasetIndex(datasets);
       this.isInitialized = true;
+
+      if (this.editorEl && !this.editor) {
+        this.initCodeEditor(this.editorEl);
+      }
 
       await this.loadSelectedExample();
 
@@ -123,8 +134,14 @@ const playgroundStore = {
   },
 
   initCodeEditor(el: HTMLElement) {
-    this.editor = createEditor(el, this.resolvedTheme, this.editorMode === "vim", () =>
-      this.onEditorChange(),
+    this.editorEl = el;
+    if (!this.datasetIndex) return;
+    this.editor = createEditor(
+      el,
+      this.resolvedTheme,
+      this.editorMode === "vim",
+      () => this.onEditorChange(),
+      this.datasetIndex,
     );
 
     if (this.isInitialized) {
@@ -133,8 +150,8 @@ const playgroundStore = {
   },
 
   onEditorChange() {
-    if (!this.isInitialized || !this.editor || !this.chartsPanel) return;
-    updateCharts(this.chartsPanel, this.editor.view.state.doc.toString());
+    if (!this.interpreter || !this.editor || !this.chartsPanel) return;
+    updateCharts(this.interpreter, this.chartsPanel, this.editor.view.state.doc.toString());
   },
 
   onEditorModeChange() {

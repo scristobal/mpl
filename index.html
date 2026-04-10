@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MPL Playground</title>
-    <script type="module" crossorigin src="/assets/index-BtN48NyH.js"></script>
+    <script type="module" crossorigin src="/assets/index-D9ruH3Bs.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BNPYS8rm.css">
   </head>
   <body>
@@ -19,7 +19,7 @@
           x-on:change="$store.playground.onExampleChange()"
         >
           <template x-for="(example, index) in $store.playground.examples" :key="index">
-            <option x-text="example" :value="index"></option>
+            <option x-text="example.name" :value="index"></option>
           </template>
         </select>
         <button
@@ -143,7 +143,7 @@
           </svg>
         </div>
         <div id="divider"></div>
-        <div id="charts-panel" x-init="$store.playground.chartsPanel = $el"></div>
+        <div id="charts-panel"></div>
       </div>
     </div>
   </body>

@@ -32,6 +32,22 @@ fn parse_bucket_without_time() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn parse_zero_duration_rejected() {
+    for query in [
+        "test:http_requests_total | align to 0m using sum",
+        "test:http_requests_total | bucket to 0m using histogram(count)",
+    ] {
+        assert!(
+            matches!(
+                super::compile(query, HashMap::new()),
+                Err(CompileError::Parse(ParseError::InvalidDuration { .. }))
+            ),
+            "expected zero duration to be rejected for {query}"
+        );
+    }
+}
+
+#[test]
 fn parse_group_by() -> Result<(), Box<dyn std::error::Error>> {
     let s = r"
 `dev.metrics`:http_requests_total[1h..]

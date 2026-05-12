@@ -1,4 +1,9 @@
-use std::{collections::HashMap, hash::BuildHasher, num::ParseFloatError, str::FromStr};
+use std::{
+    collections::HashMap,
+    hash::BuildHasher,
+    num::{NonZeroU64, ParseFloatError},
+    str::FromStr,
+};
 
 use chrono::DateTime;
 use miette::SourceSpan;
@@ -279,7 +284,10 @@ fn parse_relative_time_inner(
     mut inner: Pairs<'_, Rule>,
     next: &Pair<Rule>,
 ) -> Result<RelativeTime> {
-    let value = next.as_str().parse::<u64>()?;
+    let raw_value = next.as_str().parse::<u64>()?;
+    let value = NonZeroU64::new(raw_value).ok_or_else(|| ParseError::InvalidDuration {
+        span: pair_to_source_span(next),
+    })?;
     let unit = inner.n()?;
     let unit = match unit.as_rule() {
         Rule::time_unit_ms => TimeUnit::Millisecond,

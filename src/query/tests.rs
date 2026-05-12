@@ -1,7 +1,11 @@
+use std::num::NonZeroU64;
+
 use miette::SourceSpan;
 
 use crate::{
+    ParseError,
     enc_regex::EncodableRegex,
+    parser::ParseParamError,
     query::{
         Cmp, Filter, FilterOrIfDef, ParamDeclaration, ParamType, ParamValue,
         ParseProvidedParamsError, ProvidedParam, ProvidedParams, RelativeTime, TagType,
@@ -74,7 +78,7 @@ fn provided_params_parse() {
     assert!(provided_params.as_slice().contains(&ProvidedParam {
         name: "duration".to_string(),
         value: ParamValue::Duration(RelativeTime {
-            value: 42,
+            value: NonZeroU64::new(42).expect("test duration must be non-zero"),
             unit: TimeUnit::Second
         })
     }));
@@ -219,6 +223,35 @@ fn provided_params_parse_failure() {
             );
         }
         res => panic!("expected parse param error, got {res:?}"),
+    }
+}
+
+#[test]
+fn provided_params_zero_duration_parse_failure() {
+    let mpl_params = vec![ParamDeclaration {
+        span: SourceSpan::from(0..0),
+        name: "duration".to_string(),
+        typ: ParamType::Terminal(TerminalParamType::Duration),
+    }];
+
+    let query_params = [("param__duration", "0s")]
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect::<Vec<(String, String)>>();
+
+    match ProvidedParams::parse_and_validate(&mpl_params, &query_params) {
+        Err(ParseProvidedParamsError::ParseParam {
+            param_name,
+            expected_type,
+            err: ParseParamError::Parse(ParseError::InvalidDuration { .. }),
+        }) => {
+            assert_eq!("duration", param_name);
+            assert_eq!(
+                ParamType::Terminal(TerminalParamType::Duration),
+                expected_type
+            );
+        }
+        res => panic!("expected invalid duration param error, got {res:?}"),
     }
 }
 

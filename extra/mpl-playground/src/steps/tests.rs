@@ -1,4 +1,6 @@
 use super::*;
+use std::num::NonZeroU64;
+
 use miette::{SourceOffset, SourceSpan};
 use mpl_lang::{
     enc_regex::EncodableRegex,
@@ -75,7 +77,7 @@ fn align_agg(func: TimeType, secs: u64) -> StepNode {
     StepNode::Aggregate(Aggregate::Align(Align {
         function: AlignFunction::Builtin(func),
         time: Some(Parameterized::Concrete(RelativeTime {
-            value: secs,
+            value: NonZeroU64::new(secs).expect("test duration must be non-zero"),
             unit: TimeUnit::Second,
         })),
     }))
@@ -346,7 +348,7 @@ fn align_month_error() {
     let node = StepNode::Aggregate(Aggregate::Align(Align {
         function: AlignFunction::Builtin(TimeType::Sum),
         time: Some(Parameterized::Concrete(RelativeTime {
-            value: 1,
+            value: NonZeroU64::new(1).expect("test duration must be non-zero"),
             unit: TimeUnit::Month,
         })),
     }));
@@ -525,7 +527,10 @@ fn raw_tag_variants() {
 
 #[test]
 fn time_to_seconds_all_units() {
-    let rt = |unit: TimeUnit| RelativeTime { value: 1, unit };
+    let rt = |unit: TimeUnit| RelativeTime {
+        value: NonZeroU64::new(1).expect("test duration must be non-zero"),
+        unit,
+    };
     assert!((time_to_seconds(&rt(TimeUnit::Millisecond)).unwrap() - 0.001).abs() < 1e-10);
     assert_eq!(time_to_seconds(&rt(TimeUnit::Second)).unwrap(), 1.0);
     assert_eq!(time_to_seconds(&rt(TimeUnit::Minute)).unwrap(), 60.0);
@@ -1141,7 +1146,7 @@ fn bucket_agg(tags: Vec<String>, secs: u64, spec: Vec<BucketSpec>) -> StepNode {
         span: span(),
         function: BucketType::Histogram,
         time: Some(Parameterized::Concrete(RelativeTime {
-            value: secs,
+            value: NonZeroU64::new(secs).expect("test duration must be non-zero"),
             unit: TimeUnit::Second,
         })),
         tags,

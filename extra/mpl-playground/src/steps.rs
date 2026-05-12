@@ -1039,17 +1039,17 @@ fn spec_name(spec: &BucketSpec) -> String {
 }
 
 fn time_to_seconds(rt: &RelativeTime) -> Result<f64> {
-    let v = rt.value as f64;
-    match rt.unit {
-        TimeUnit::Millisecond => Ok(v / 1000.0),
-        TimeUnit::Second => Ok(v),
-        TimeUnit::Minute => Ok(v * 60.0),
-        TimeUnit::Hour => Ok(v * 3600.0),
-        TimeUnit::Day => Ok(v * 86400.0),
-        TimeUnit::Week => Ok(v * 604_800.0),
+    let v = rt.value.get() as f64;
+    Ok(match rt.unit {
+        TimeUnit::Millisecond => v / 1000.0,
+        TimeUnit::Second => v,
+        TimeUnit::Minute => v * 60.0,
+        TimeUnit::Hour => v * 3600.0,
+        TimeUnit::Day => v * 86400.0,
+        TimeUnit::Week => v * 604_800.0,
         TimeUnit::Month => bail!("Month time unit is not supported"),
         TimeUnit::Year => bail!("Year time unit is not supported"),
-    }
+    })
 }
 
 fn apply_bucket(series: &[Series], bucket: &BucketBy) -> Result<Vec<Series>> {

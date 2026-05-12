@@ -274,6 +274,14 @@ describe("parse + interpret end-to-end", () => {
       expect(result.length).toBe(5);
     });
 
+    it("align-rate.mpl with zero interval reports an error", () => {
+      expect(() =>
+        run(
+          "`dev.metrics`:http_requests_total\n| filter path == #/.*(elastic\\/_bulk|ingest|(?:v1\\/(traces|logs|metrics))).*/\n| filter code == #/[123]../\n| align to 0m using prom::rate\n| group by method, path, code using sum",
+        ),
+      ).toThrow("greater than zero");
+    });
+
     it("slo.mpl", () => {
       const result = run(
         '`com.app.test`:ingest_pressure\n| where time_window == "1m"\n| where service == #/axiomdb-[a-f]/\n| group using max\n| map is::lt(100)\n| align to 10m using avg',

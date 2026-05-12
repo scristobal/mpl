@@ -2,7 +2,7 @@
 use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
-    num::TryFromIntError,
+    num::{NonZeroU64, TryFromIntError},
 };
 
 #[cfg(feature = "clock")]
@@ -66,7 +66,8 @@ pub enum TimeUnit {
 #[cfg_attr(feature = "wasm", tsify(into_wasm_abi, from_wasm_abi))]
 pub struct RelativeTime {
     /// Value
-    pub value: u64,
+    #[cfg_attr(feature = "wasm", tsify(type = "number"))]
+    pub value: NonZeroU64,
     /// Unit
     pub unit: TimeUnit,
 }
@@ -1010,7 +1011,7 @@ impl Query {
 impl RelativeTime {
     /// Converts a relative time to a `Duration`
     pub fn to_duration(&self) -> Result<Duration, TimeError> {
-        let v = i64::try_from(self.value).map_err(TimeError::InvalidDuration)?;
+        let v = i64::try_from(self.value.get()).map_err(TimeError::InvalidDuration)?;
         Ok(match self.unit {
             TimeUnit::Millisecond => Duration::milliseconds(v),
             TimeUnit::Second => Duration::seconds(v),
@@ -1025,15 +1026,16 @@ impl RelativeTime {
 
     /// Converts a relative time to a `Resolution`
     pub fn to_resolution(&self) -> Result<Resolution, ResolutionError> {
+        let value = self.value.get();
         match self.unit {
-            TimeUnit::Millisecond => Resolution::secs(self.value / 1000),
-            TimeUnit::Second => Resolution::secs(self.value),
-            TimeUnit::Minute => Resolution::secs(self.value.saturating_mul(60)),
-            TimeUnit::Hour => Resolution::secs(self.value.saturating_mul(60 * 60)),
-            TimeUnit::Day => Resolution::secs(self.value.saturating_mul(60 * 60 * 24)),
-            TimeUnit::Week => Resolution::secs(self.value.saturating_mul(60 * 60 * 24 * 7)),
-            TimeUnit::Month => Resolution::secs(self.value.saturating_mul(60 * 60 * 24 * 30)),
-            TimeUnit::Year => Resolution::secs(self.value.saturating_mul(60 * 60 * 24 * 365)),
+            TimeUnit::Millisecond => Resolution::secs(value / 1000),
+            TimeUnit::Second => Resolution::secs(value),
+            TimeUnit::Minute => Resolution::secs(value.saturating_mul(60)),
+            TimeUnit::Hour => Resolution::secs(value.saturating_mul(60 * 60)),
+            TimeUnit::Day => Resolution::secs(value.saturating_mul(60 * 60 * 24)),
+            TimeUnit::Week => Resolution::secs(value.saturating_mul(60 * 60 * 24 * 7)),
+            TimeUnit::Month => Resolution::secs(value.saturating_mul(60 * 60 * 24 * 30)),
+            TimeUnit::Year => Resolution::secs(value.saturating_mul(60 * 60 * 24 * 365)),
         }
     }
 }

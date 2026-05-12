@@ -91,6 +91,15 @@ pub enum ParseError {
     #[diagnostic(code(mpl_lang::invalid_integer))]
     InvalidInteger(#[from] std::num::ParseIntError),
 
+    /// Invalid duration
+    #[error("Invalid duration: value must be greater than zero")]
+    #[diagnostic(code(mpl_lang::invalid_duration))]
+    InvalidDuration {
+        /// The source location of the invalid duration value
+        #[label("must be greater than zero")]
+        span: SourceSpan,
+    },
+
     /// Invalid bool
     #[error("Invalid bool: {0}")]
     #[diagnostic(code(mpl_lang::invalid_bool))]

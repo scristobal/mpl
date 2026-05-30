@@ -448,29 +448,25 @@ pub trait QueryWalker: QueryVisitor {
         );
         QueryWalker::walk_dataset(self, &mut source.metric_id.dataset)?;
         QueryWalker::walk_metric(self, &mut source.metric_id.metric)?;
-        QueryVisitor::leave_source(self, source)?;
-        Ok(())
+        QueryVisitor::leave_source(self, source)
     }
 
     /// Walk a dataset.
     fn walk_dataset(&mut self, dataset: &mut Parameterized<Dataset>) -> Result<(), Self::Error> {
         QueryVisitor::visit_dataset(self, dataset)?;
-        QueryVisitor::leave_dataset(self, dataset)?;
-        Ok(())
+        QueryVisitor::leave_dataset(self, dataset)
     }
 
     /// Walk a metric.
     fn walk_metric(&mut self, metric: &mut Metric) -> Result<(), Self::Error> {
         QueryVisitor::visit_metric(self, metric)?;
-        QueryVisitor::leave_metric(self, metric)?;
-        Ok(())
+        QueryVisitor::leave_metric(self, metric)
     }
 
     /// Walk a sample.
     fn walk_sample(&mut self, sample: &mut Option<f64>) -> Result<(), Self::Error> {
         QueryVisitor::visit_sample(self, sample)?;
-        QueryVisitor::leave_sample(self, sample)?;
-        Ok(())
+        QueryVisitor::leave_sample(self, sample)
     }
 
     /// Walk filters.
@@ -482,8 +478,7 @@ pub trait QueryWalker: QueryVisitor {
         for filter in filters.iter_mut() {
             QueryWalker::walk_filter_or_ifdef(self, filter)?;
         }
-        QueryVisitor::leave_filters(self, filters)?;
-        Ok(())
+        QueryVisitor::leave_filters(self, filters)
     }
 
     /// Walk a filter or ifdef.
@@ -500,8 +495,7 @@ pub trait QueryWalker: QueryVisitor {
                 else_filter,
             } => QueryWalker::walk_ifdef(self, param, filter, else_filter)?,
         }
-        QueryVisitor::leave_filter_or_ifdef(self, filter)?;
-        Ok(())
+        QueryVisitor::leave_filter_or_ifdef(self, filter)
     }
 
     /// Walk an ifdef.
@@ -520,9 +514,7 @@ pub trait QueryWalker: QueryVisitor {
         if let Some(else_filter) = else_filter {
             QueryWalker::walk_filter(self, else_filter)?;
         }
-        QueryVisitor::leave_ifdef(self, param, filter, else_filter)?;
-
-        Ok(())
+        QueryVisitor::leave_ifdef(self, param, filter, else_filter)
     }
 
     /// Walk a filter.
@@ -540,21 +532,24 @@ pub trait QueryWalker: QueryVisitor {
             Filter::Not(filter) => QueryWalker::walk_filter(self, filter)?,
             Filter::Cmp { field, rhs } => QueryWalker::walk_cmp(self, field, rhs)?,
         }
-        QueryVisitor::leave_filter(self, filter)?;
-        Ok(())
+        QueryVisitor::leave_filter(self, filter)
     }
 
     /// Walk a cmp.
     fn walk_cmp(&mut self, field: &mut String, rhs: &mut Cmp) -> Result<(), Self::Error> {
-        QueryVisitor::visit_cmp(self, field, rhs)?;
-
+        stop!(
+            QueryVisitor::visit_cmp(self, field, rhs),
+            QueryVisitor::leave_cmp(self, field, rhs)
+        );
         match rhs {
             Cmp::Eq(parameterized)
             | Cmp::Ne(parameterized)
             | Cmp::Gt(parameterized)
             | Cmp::Ge(parameterized)
             | Cmp::Lt(parameterized)
-            | Cmp::Le(parameterized) => QueryWalker::walk_expr(self, parameterized)?,
+            | Cmp::Le(parameterized) => {
+                QueryWalker::walk_expr(self, parameterized)?;
+            }
             Cmp::RegEx(parameterized) | Cmp::RegExNot(parameterized) => {
                 QueryWalker::walk_parameterized_regex(self, parameterized)?;
             }
@@ -579,8 +574,7 @@ pub trait QueryWalker: QueryVisitor {
     /// Walk an op.
     fn walk_op(&mut self, op: &mut ComputeFunction) -> Result<(), Self::Error> {
         QueryVisitor::visit_op(self, op)?;
-        QueryVisitor::leave_op(self, op)?;
-        Ok(())
+        QueryVisitor::leave_op(self, op)
     }
 
     /// Walk aggregates.
@@ -592,8 +586,7 @@ pub trait QueryWalker: QueryVisitor {
         for aggregate in aggregates.iter_mut() {
             QueryWalker::walk_aggregate(self, aggregate)?;
         }
-        QueryVisitor::leave_aggregates(self, aggregates)?;
-        Ok(())
+        QueryVisitor::leave_aggregates(self, aggregates)
     }
 
     /// Walk an aggregate.
@@ -609,44 +602,41 @@ pub trait QueryWalker: QueryVisitor {
             Aggregate::Bucket(bucket_by) => QueryWalker::walk_bucket_by(self, bucket_by)?,
             Aggregate::As(as_) => QueryWalker::walk_as(self, as_)?,
         }
-        QueryVisitor::leave_aggregate(self, aggregate)?;
-        Ok(())
+        QueryVisitor::leave_aggregate(self, aggregate)
     }
 
     /// Walk a mapping.
     fn walk_mapping(&mut self, mapping: &mut Mapping) -> Result<(), Self::Error> {
         QueryVisitor::visit_mapping(self, mapping)?;
-        QueryVisitor::leave_mapping(self, mapping)?;
-        Ok(())
+        QueryVisitor::leave_mapping(self, mapping)
     }
 
     /// Walk an align.
     fn walk_align(&mut self, align: &mut Align) -> Result<(), Self::Error> {
         QueryVisitor::visit_align(self, align)?;
-        QueryVisitor::leave_align(self, align)?;
-        Ok(())
+        QueryVisitor::leave_align(self, align)
     }
 
     /// Walk a group by.
     fn walk_group_by(&mut self, group_by: &mut GroupBy) -> Result<(), Self::Error> {
         QueryVisitor::visit_group_by(self, group_by)?;
-        QueryVisitor::leave_group_by(self, group_by)?;
-        Ok(())
+        QueryVisitor::leave_group_by(self, group_by)
     }
 
     /// Walk a bucket by.
     fn walk_bucket_by(&mut self, bucket_by: &mut BucketBy) -> Result<(), Self::Error> {
         QueryVisitor::visit_bucket_by(self, bucket_by)?;
-        QueryVisitor::leave_bucket_by(self, bucket_by)?;
-        Ok(())
+        QueryVisitor::leave_bucket_by(self, bucket_by)
     }
 
     /// Walk an as.
     fn walk_as(&mut self, as_: &mut As) -> Result<(), Self::Error> {
-        QueryVisitor::visit_as(self, as_)?;
-        QueryVisitor::visit_metric(self, &mut as_.name)?;
-        QueryVisitor::leave_as(self, as_)?;
-        Ok(())
+        stop!(
+            QueryVisitor::visit_as(self, as_),
+            QueryVisitor::leave_as(self, as_)
+        );
+        QueryWalker::walk_metric(self, &mut as_.name)?;
+        QueryVisitor::leave_as(self, as_)
     }
 
     /// Walk directives.
@@ -658,8 +648,7 @@ pub trait QueryWalker: QueryVisitor {
         for (name, value) in directives.iter_mut() {
             QueryWalker::walk_directive(self, name, value)?;
         }
-        QueryVisitor::leave_directives(self, directives)?;
-        Ok(())
+        QueryVisitor::leave_directives(self, directives)
     }
 
     /// Walk a directive.
@@ -669,8 +658,7 @@ pub trait QueryWalker: QueryVisitor {
         value: &mut DirectiveValue,
     ) -> Result<(), Self::Error> {
         QueryVisitor::visit_directive(self, name, value)?;
-        QueryVisitor::leave_directive(self, name, value)?;
-        Ok(())
+        QueryVisitor::leave_directive(self, name, value)
     }
 
     /// Walk params.
@@ -682,15 +670,13 @@ pub trait QueryWalker: QueryVisitor {
         for param in params.iter_mut() {
             QueryWalker::walk_param(self, param)?;
         }
-        QueryVisitor::leave_params(self, params)?;
-        Ok(())
+        QueryVisitor::leave_params(self, params)
     }
 
     /// Walk a param.
     fn walk_param(&mut self, param: &mut ParamDeclaration) -> Result<(), Self::Error> {
         QueryVisitor::visit_param(self, param)?;
-        QueryVisitor::leave_param(self, param)?;
-        Ok(())
+        QueryVisitor::leave_param(self, param)
     }
 
     /// Walk params.
@@ -702,14 +688,12 @@ pub trait QueryWalker: QueryVisitor {
         for param in extends.iter_mut() {
             QueryWalker::walk_extend(self, param)?;
         }
-        QueryVisitor::leave_extends(self, extends)?;
-        Ok(())
+        QueryVisitor::leave_extends(self, extends)
     }
 
     /// Walk a param.
     fn walk_extend(&mut self, extend: &mut TagExtend) -> Result<(), Self::Error> {
         QueryVisitor::visit_extend(self, extend)?;
-        QueryVisitor::leave_extend(self, extend)?;
-        Ok(())
+        QueryVisitor::leave_extend(self, extend)
     }
 }

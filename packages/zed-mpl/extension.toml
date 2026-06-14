@@ -1,0 +1,13 @@
+id = "mpl"
+name = "MPL"
+version = "0.5.7"
+schema_version = 1
+authors = ["Axiom <support@axiom.co>"]
+description = "Language support for Axiom Metrics Processing Language."
+repository = "https://github.com/axiomhq/mpl"
+languages = ["languages/mpl"]
+
+[grammars.mpl]
+repository = "https://github.com/axiomhq/mpl"
+rev = "main"
+path = "packages/tree-sitter-mpl"

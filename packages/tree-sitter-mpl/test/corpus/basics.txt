@@ -1,0 +1,259 @@
+==================
+source and pipes
+==================
+
+dataset:metric
+| where code >= 500
+| align to 5m using avg
+| group by method using sum
+
+---
+
+(source_file
+  (query
+    (simple_query
+      (source
+        (metric_id
+          (identifier)
+          (identifier)))
+      (filter_pipe
+        (filter_expression
+          (filter_or
+            (filter_and
+              (filter_not
+                (filter_clause
+                  (filter_atom
+                    (tag
+                      (identifier))
+                    (value_filter
+                      (comparison_operator)
+                      (expression
+                        (constant
+                          (number)))))))))))
+      (query_pipe
+        (align_pipe
+          (time_relative_parameterized
+            (time_relative))
+          (function_name
+            (identifier))))
+      (query_pipe
+        (group_pipe
+          (tag_list
+            (tag
+              (identifier)))
+          (function_name
+            (identifier)))))))
+
+==================
+parameters and ifdef
+==================
+
+param $dataset: Dataset;
+param $duration: Duration;
+param $tag: Option<string>;
+
+$dataset:metric
+| ifdef($tag) { where __tag == $tag } else { where __tag == "default" }
+| align to $duration using avg
+
+---
+
+(source_file
+  (param_declaration
+    (param_identifier
+      (identifier))
+    (param_type
+      (param_native_type)))
+  (param_declaration
+    (param_identifier
+      (identifier))
+    (param_type
+      (param_native_type)))
+  (param_declaration
+    (param_identifier
+      (identifier))
+    (param_type
+      (optional_type
+        (tag_type))))
+  (query
+    (simple_query
+      (source
+        (metric_id
+          (param_identifier
+            (identifier))
+          (identifier)))
+      (ifdef_pipe
+        (param_identifier
+          (identifier))
+        (filter_body
+          (filter_expression
+            (filter_or
+              (filter_and
+                (filter_not
+                  (filter_clause
+                    (filter_atom
+                      (tag
+                        (identifier))
+                      (value_filter
+                        (comparison_operator)
+                        (expression
+                          (param_identifier
+                            (identifier)))))))))))
+        (filter_body
+          (filter_expression
+            (filter_or
+              (filter_and
+                (filter_not
+                  (filter_clause
+                    (filter_atom
+                      (tag
+                        (identifier))
+                      (value_filter
+                        (comparison_operator)
+                        (expression
+                          (constant
+                            (string))))))))))))
+      (query_pipe
+        (align_pipe
+          (time_relative_parameterized
+            (param_identifier
+              (identifier)))
+          (function_name
+            (identifier)))))))
+
+==================
+escaped identifiers
+==================
+
+set `escaped no_arg`;
+
+`dataset`:`handling_seconds`
+| where `service.name` == "api"
+| group by `http.method` using avg
+
+---
+
+(source_file
+  (directive
+    (escaped_identifier))
+  (query
+    (simple_query
+      (source
+        (metric_id
+          (escaped_identifier)
+          (escaped_identifier)))
+      (filter_pipe
+        (filter_expression
+          (filter_or
+            (filter_and
+              (filter_not
+                (filter_clause
+                  (filter_atom
+                    (tag
+                      (escaped_identifier))
+                    (value_filter
+                      (comparison_operator)
+                      (expression
+                        (constant
+                          (string)))))))))))
+      (query_pipe
+        (group_pipe
+          (tag_list
+            (tag
+              (escaped_identifier)))
+          (function_name
+            (identifier)))))))
+
+==================
+bucket and replace
+==================
+
+dev.metrics:transport_request_duration_seconds_bucket
+| bucket by method to 1m using histogram(0.5,1,2,5)
+| replace service=service_name~#s/api-/svc-/
+
+---
+
+(source_file
+  (query
+    (simple_query
+      (source
+        (metric_id
+          (identifier)
+          (identifier)))
+      (query_pipe
+        (bucket_pipe
+          (tag_list
+            (tag
+              (identifier)))
+          (time_relative_parameterized
+            (time_relative))
+          (bucket_function_call
+            (bucket_by_function)
+            (bucket_specs
+              (bucket_spec
+                (number))
+              (bucket_spec
+                (number))
+              (bucket_spec
+                (number))
+              (bucket_spec
+                (number))))))
+      (query_pipe
+        (replace_pipe
+          (replace_rename_tag
+            (tag
+              (identifier))
+            (tag
+              (identifier))
+            (regex_replace)))))))
+
+==================
+compute query
+==================
+
+(
+  dataset:requests_total | align to 1m using sum,
+  dataset:errors_total | align to 1m using sum,
+) | compute error_rate using /
+| map is::lt(0.5)
+
+---
+
+(source_file
+  (query
+    (compute_query
+      (query
+        (simple_query
+          (source
+            (metric_id
+              (identifier)
+              (identifier)))
+          (query_pipe
+            (align_pipe
+              (time_relative_parameterized
+                (time_relative))
+              (function_name
+                (identifier))))))
+      (query
+        (simple_query
+          (source
+            (metric_id
+              (identifier)
+              (identifier)))
+          (query_pipe
+            (align_pipe
+              (time_relative_parameterized
+                (time_relative))
+              (function_name
+                (identifier))))))
+      (compute_pipe
+        (identifier)
+        (compute_operator))
+      (query_pipe
+        (map_pipe
+          (map_fn
+            (function_name
+              (identifier)
+              (identifier))
+            (number)))))))

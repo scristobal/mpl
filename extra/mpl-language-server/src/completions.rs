@@ -1,4 +1,5 @@
 //! Autocompletion and function info for `MPL` queries.
+use std::fmt::Display;
 use std::sync::LazyLock;
 
 use pest::Parser as _;
@@ -30,6 +31,21 @@ pub enum ParamType {
     Regex,
 }
 
+impl Display for ParamType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParamType::Dataset => write!(f, "Dataset"),
+            ParamType::Metric => write!(f, "Metric"),
+            ParamType::Duration => write!(f, "Duration"),
+            ParamType::String => write!(f, "String"),
+            ParamType::Int => write!(f, "Int"),
+            ParamType::Float => write!(f, "Float"),
+            ParamType::Bool => write!(f, "Bool"),
+            ParamType::Regex => write!(f, "Regex"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct ParamItem {
     pub label: std::string::String,
@@ -51,6 +67,19 @@ pub struct FunctionItem {
     pub label: String,
     pub args: Vec<CompletionArg>,
     pub info: String,
+}
+
+impl FunctionItem {
+    /// Function signature in plain text format
+    pub fn format_signature(&self) -> String {
+        let args = self
+            .args
+            .iter()
+            .map(|arg| arg.name)
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!("{}({args})", self.label)
+    }
 }
 
 #[derive(Serialize)]
@@ -171,6 +200,40 @@ pub struct FunctionInfo {
     pub label: String,
     pub args: Vec<CompletionArg>,
     pub info: Option<String>,
+}
+
+/// The stdlib function namespace implied by a parsed MPL operation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FunctionCategory {
+    Map,
+    Align,
+    Group,
+    Bucket,
+    Compute,
+}
+
+impl FunctionInfo {
+    /// Prints the function in Markdon format
+    pub fn as_markdown(&self) -> String {
+        let mut markdown = format!("```mpl\n{}\n```", self.format_signature());
+        if let Some(doc) = &self.info
+            && !doc.is_empty()
+        {
+            markdown.push_str("\n\n");
+            markdown.push_str(doc);
+        }
+        markdown
+    }
+
+    pub fn format_signature(&self) -> String {
+        let args = self
+            .args
+            .iter()
+            .map(|arg| arg.name)
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!("{}({args})", self.label)
+    }
 }
 
 /// Looks up a stdlib function by its qualified label (e.g. `"avg"` or
@@ -336,6 +399,28 @@ fn function_info_by_id(module: &Module, fn_id: &str) -> Option<FunctionInfo> {
         .or_else(|| module.bucket_function(fn_id).map(|f| make(fn_id, f)))
 }
 
+fn function_info_by_category(
+    module: &Module,
+    category: FunctionCategory,
+    fn_id: &str,
+) -> Option<FunctionInfo> {
+    fn make<F: FunctionTrait>(label: &str, f: &F) -> FunctionInfo {
+        FunctionInfo {
+            label: label.to_string(),
+            args: collect_args(f),
+            info: Some(f.doc().to_string()),
+        }
+    }
+
+    match category {
+        FunctionCategory::Map => module.mapping_function(fn_id).map(|f| make(fn_id, f)),
+        FunctionCategory::Align => module.align_function(fn_id).map(|f| make(fn_id, f)),
+        FunctionCategory::Group => module.group_function(fn_id).map(|f| make(fn_id, f)),
+        FunctionCategory::Bucket => module.bucket_function(fn_id).map(|f| make(fn_id, f)),
+        FunctionCategory::Compute => module.compute_function(fn_id).map(|f| make(fn_id, f)),
+    }
+}
+
 /// Walk down the submodule tree following the `::`-separated path segments.
 fn resolve_module_path<'a>(module: &'a Module, path: &str) -> Option<&'a Module> {
     let mut current = module;
@@ -361,6 +446,24 @@ fn lookup_unqualified(module: &Module, fn_name: &str) -> Option<FunctionInfo> {
     None
 }
 
+fn lookup_unqualified_by_category(
+    module: &Module,
+    category: FunctionCategory,
+    fn_name: &str,
+) -> Option<FunctionInfo> {
+    for (sub_name, sub) in module.submodule_iter() {
+        if let Some(mut info) = function_info_by_category(sub, category, fn_name) {
+            info.label = format!("{sub_name}::{fn_name}");
+            return Some(info);
+        }
+        if let Some(mut info) = lookup_unqualified_by_category(sub, category, fn_name) {
+            info.label = format!("{sub_name}::{}", info.label);
+            return Some(info);
+        }
+    }
+    None
+}
+
 /// Look up a stdlib function by qualified label (e.g. `"avg"` or `"prom::rate"`).
 pub fn lookup_function(module: &Module, label: &str) -> Option<FunctionInfo> {
     if let Some((module_path, fn_name)) = label.rsplit_once("::") {
@@ -370,6 +473,20 @@ pub fn lookup_function(module: &Module, label: &str) -> Option<FunctionInfo> {
         Some(info)
     } else {
         function_info_by_id(module, label).or_else(|| lookup_unqualified(module, label))
+    }
+}
+
+/// Look up a stdlib function within the namespace implied by the parsed query.
+#[must_use]
+pub fn function_info_for_category(category: FunctionCategory, label: &str) -> Option<FunctionInfo> {
+    if let Some((module_path, fn_name)) = label.rsplit_once("::") {
+        let module = resolve_module_path(&STDLIB, module_path)?;
+        let mut info = function_info_by_category(module, category, fn_name)?;
+        info.label = label.to_string();
+        Some(info)
+    } else {
+        function_info_by_category(&STDLIB, category, label)
+            .or_else(|| lookup_unqualified_by_category(&STDLIB, category, label))
     }
 }
 

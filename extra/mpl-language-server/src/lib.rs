@@ -7,6 +7,7 @@
 
 mod completions;
 mod diagnostics;
+mod hover;
 mod lints;
 mod parser;
 mod system_params;
@@ -15,12 +16,14 @@ mod visit;
 
 pub use completions::{
     ALIGN_FN_NAMES, BUCKET_FN_NAMES, COMPUTE_FN_NAMES, CompletionArg, CompletionResult,
-    FunctionInfo, FunctionItem, GROUP_FN_NAMES, KeywordItem, MAP_FN_NAMES, ParamItem, ParamType,
-    compute_completions_with_params, function_info,
+    FunctionCategory, FunctionInfo, FunctionItem, GROUP_FN_NAMES, KeywordItem, MAP_FN_NAMES,
+    ParamItem, ParamType, compute_completions_with_params, function_info,
+    function_info_for_category,
 };
 pub use diagnostics::{
     DiagnosticAction, DiagnosticItem, Severity, compute_diagnostics, compute_diagnostics_raw,
 };
+pub use hover::{FunctionHover, function_hover};
 pub use system_params::{
     SystemParamSpec, to_compile_params, to_completion_items as system_params_to_completion_items,
 };
@@ -37,6 +40,18 @@ pub struct Span {
 impl Span {
     pub fn new(from: usize, to: usize) -> Self {
         Self { from, to }
+    }
+
+    pub fn intersects(self, other: Self) -> bool {
+        if self.from == self.to {
+            return other.from <= self.from && self.from <= other.to;
+        }
+
+        if other.from == other.to {
+            return self.from <= other.from && other.from <= self.to;
+        }
+
+        self.from < other.to && other.from < self.to
     }
 }
 

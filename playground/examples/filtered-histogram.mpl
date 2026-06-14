@@ -4,5 +4,5 @@
 | filter le == #/^0\.5/
 | map rate
 // | align to 30s using avg
-| group by handler, le using sum
+| group by handler, le using  sum
 // | bucket by handler using interpolate_histogram(30s, min, 0.5, max)

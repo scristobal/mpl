@@ -9,7 +9,7 @@
 //    )[10m:]
 // )
 
-`com.app.test`:ingest_pressure
+com.app.test:ingest_pressure
 | where time_window == "1m"
 | where service == #/axiomdb-[a-f]/
 | group using max

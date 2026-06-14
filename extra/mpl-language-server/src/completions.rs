@@ -1,4 +1,5 @@
 //! Autocompletion and function info for `MPL` queries.
+use std::fmt::Display;
 use std::sync::LazyLock;
 
 use pest::Parser as _;
@@ -30,6 +31,21 @@ pub enum ParamType {
     Regex,
 }
 
+impl Display for ParamType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParamType::Dataset => write!(f, "Dataset"),
+            ParamType::Metric => write!(f, "Metric"),
+            ParamType::Duration => write!(f, "Duration"),
+            ParamType::String => write!(f, "String"),
+            ParamType::Int => write!(f, "Int"),
+            ParamType::Float => write!(f, "Float"),
+            ParamType::Bool => write!(f, "Bool"),
+            ParamType::Regex => write!(f, "Regex"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct ParamItem {
     pub label: std::string::String,
@@ -51,6 +67,19 @@ pub struct FunctionItem {
     pub label: String,
     pub args: Vec<CompletionArg>,
     pub info: String,
+}
+
+impl FunctionItem {
+    /// Function signature in plain text format
+    pub fn format_signature(&self) -> String {
+        let args = self
+            .args
+            .iter()
+            .map(|arg| arg.name)
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!("{}({args})", self.label)
+    }
 }
 
 #[derive(Serialize)]
@@ -171,6 +200,30 @@ pub struct FunctionInfo {
     pub label: String,
     pub args: Vec<CompletionArg>,
     pub info: Option<String>,
+}
+
+impl FunctionInfo {
+    /// Prints the function in Markdon format
+    pub fn as_markdown(&self) -> String {
+        let mut markdown = format!("```mpl\n{}\n```", self.format_signature());
+        if let Some(doc) = &self.info
+            && !doc.is_empty()
+        {
+            markdown.push_str("\n\n");
+            markdown.push_str(doc);
+        }
+        markdown
+    }
+
+    pub fn format_signature(&self) -> String {
+        let args = self
+            .args
+            .iter()
+            .map(|arg| arg.name)
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!("{}({args})", self.label)
+    }
 }
 
 /// Looks up a stdlib function by its qualified label (e.g. `"avg"` or

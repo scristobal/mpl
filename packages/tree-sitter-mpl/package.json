@@ -1,0 +1,35 @@
+{
+  "name": "@axiomhq/tree-sitter-mpl",
+  "version": "0.5.7",
+  "description": "Tree-sitter grammar for Axiom Metrics Processing Language",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axiomhq/mpl.git",
+    "directory": "packages/tree-sitter-mpl"
+  },
+  "keywords": [
+    "tree-sitter",
+    "mpl",
+    "axiom",
+    "parser"
+  ],
+  "files": [
+    "grammar.js",
+    "tree-sitter.json",
+    "src",
+    "queries",
+    "test/corpus",
+    "README.md",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test",
+    "build": "tree-sitter generate && tree-sitter test"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.0"
+  }
+}

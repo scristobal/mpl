@@ -1,0 +1,84 @@
+{
+  "name": "mpl-vscode",
+  "displayName": "MPL",
+  "version": "0.5.7",
+  "publisher": "axiomhq",
+  "description": "VS Code language support for Axiom Metrics Processing Language",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axiomhq/mpl.git",
+    "directory": "packages/vscode-mpl"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "mpl",
+    "axiom",
+    "language-server",
+    "lsp"
+  ],
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "activationEvents": [
+    "onLanguage:mpl"
+  ],
+  "main": "./dist/extension.js",
+  "files": [
+    "dist",
+    "language-configuration.json",
+    "syntaxes",
+    "server",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "mpl",
+        "aliases": [
+          "MPL",
+          "mpl"
+        ],
+        "extensions": [
+          ".mpl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mpl",
+        "scopeName": "source.mpl",
+        "path": "./syntaxes/mpl.tmLanguage.json"
+      }
+    ],
+    "configurationDefaults": {
+      "files.associations": {
+        "*.mpl": "mpl"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p . --noEmit && esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js",
+    "watch": "tsc -w -p .",
+    "stage:server": "node ./scripts/stage-server.mjs",
+    "package": "vsce package --no-dependencies",
+    "package:target": "npm run build && npm run stage:server && vsce package --no-dependencies --target"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.27.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}

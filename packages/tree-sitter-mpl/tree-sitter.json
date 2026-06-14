@@ -1,0 +1,31 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "mpl",
+      "camelcase": "Mpl",
+      "title": "MPL",
+      "scope": "source.mpl",
+      "file-types": ["mpl"],
+      "injection-regex": "^mpl$",
+      "highlights": "queries/highlights.scm",
+      "locals": "queries/locals.scm",
+      "injections": "queries/injections.scm",
+      "class-name": "TreeSitterMpl"
+    }
+  ],
+  "metadata": {
+    "version": "0.5.7",
+    "license": "MIT OR Apache-2.0",
+    "description": "Tree-sitter grammar for Axiom Metrics Processing Language",
+    "authors": [
+      {
+        "name": "Axiom",
+        "email": "support@axiom.co"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/axiomhq/mpl"
+    }
+  }
+}

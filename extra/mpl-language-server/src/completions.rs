@@ -30,6 +30,21 @@ pub enum ParamType {
     Regex,
 }
 
+// impl ParamType {
+//     fn format_params(&self) -> String {
+//         match self {
+//             ParamType::Dataset =>  "Dataset",
+//             ParamType::Metric => "Metric",
+//             ParamType::Duration => "Duration",
+//             ParamType::String => "String",
+//             ParamType::Int => "Int",
+//             ParamType::Float => "Float",
+//             ParamType::Bool => "Bool",
+//             ParamType::Regex =>  "Regex",
+//         }.to_string()
+//     }
+// }
+
 #[derive(Clone, Debug, Serialize)]
 pub struct ParamItem {
     pub label: std::string::String,
@@ -52,6 +67,19 @@ pub struct FunctionItem {
     pub args: Vec<CompletionArg>,
     pub info: String,
 }
+
+// impl FunctionItem {
+//     /// Function name and signature in plain text format
+//     pub fn format_signature(&self) -> String {
+//         let args = self
+//             .args
+//             .iter()
+//             .map(|arg| arg.name)
+//             .collect::<Vec<_>>()
+//             .join(", ");
+//         format!("{}({args})", self.label)
+//     }
+// }
 
 #[derive(Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]

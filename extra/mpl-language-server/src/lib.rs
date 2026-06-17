@@ -7,6 +7,7 @@
 
 mod completions;
 mod diagnostics;
+mod hover;
 mod lints;
 mod parser;
 mod system_params;
@@ -21,6 +22,9 @@ pub use completions::{
 pub use diagnostics::{
     DiagnosticAction, DiagnosticItem, Severity, compute_diagnostics, compute_diagnostics_raw,
 };
+pub use hover::{FunctionHover, function_hover};
+use mpl_lang::Rule;
+use pest::iterators::Pair;
 pub use system_params::{
     SystemParamSpec, to_compile_params, to_completion_items as system_params_to_completion_items,
 };
@@ -37,6 +41,29 @@ pub struct Span {
 impl Span {
     pub fn new(from: usize, to: usize) -> Self {
         Self { from, to }
+    }
+
+    pub fn intersects(self, other: Self) -> bool {
+        if self.from == self.to {
+            return other.from <= self.from && self.from <= other.to;
+        }
+
+        if other.from == other.to {
+            return self.from <= other.from && other.from <= self.to;
+        }
+
+        self.from < other.to && other.from < self.to
+    }
+
+    pub fn contains(&self, cursor: usize) -> bool {
+        self.from <= cursor && cursor <= self.to
+    }
+}
+
+impl From<&Pair<'_, Rule>> for Span {
+    fn from(pair: &Pair<Rule>) -> Self {
+        let span = pair.as_span();
+        Span::new(span.start(), span.end())
     }
 }
 

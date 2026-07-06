@@ -7,18 +7,13 @@ use lsp_types::notification::{
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Notification,
     PublishDiagnostics,
 };
-use lsp_types::request::{Completion as CompletionRequest, Request as LspRequest};
 use lsp_types::{
-    CompletionItem, CompletionItemKind, CompletionOptions, CompletionParams, CompletionResponse,
-    CompletionTextEdit, Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams, DidOpenTextDocumentParams, Documentation, InitializeResult,
-    Position, PublishDiagnosticsParams, Range, ServerCapabilities, ServerInfo,
-    TextDocumentSyncCapability, TextDocumentSyncKind, TextDocumentSyncOptions, TextEdit, Uri,
+    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams, InitializeResult, Position, PublishDiagnosticsParams, Range,
+    ServerCapabilities, ServerInfo, TextDocumentSyncCapability, TextDocumentSyncKind,
+    TextDocumentSyncOptions, Uri,
 };
-use mpl_language_server::{
-    CompletionResult, Severity as MplSeverity, Span, compute_completions_with_params,
-    compute_diagnostics_raw,
-};
+use mpl_language_server::{Severity as MplSeverity, Span, compute_diagnostics_raw};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -61,7 +56,6 @@ impl Server {
                         ..Default::default()
                     },
                 )),
-                completion_provider: Some(CompletionOptions::default()),
                 ..Default::default()
             },
             server_info: Some(ServerInfo {
@@ -103,20 +97,10 @@ impl Server {
             return Ok(());
         }
 
-        match request.method.as_str() {
-            CompletionRequest::METHOD => {
-                let (id, params) = request.extract(CompletionRequest::METHOD)?;
-                let result = self.completions(params);
-                let response = Response::new_ok(id, result);
-                self.connection.sender.send(response.into())?;
-            }
-            _ => {
-                let id = request.id;
-                let error = ErrorCode::MethodNotFound;
-                let response = Response::new_err(id, error as i32, "method not found".to_string());
-                self.connection.sender.send(response.into())?;
-            }
-        }
+        let id = request.id;
+        let error = ErrorCode::MethodNotFound;
+        let response = Response::new_err(id, error as i32, "method not found".to_string());
+        self.connection.sender.send(response.into())?;
 
         Ok(())
     }
@@ -197,76 +181,6 @@ impl Server {
 }
 
 impl Server {
-    fn completions(&self, params: CompletionParams) -> Option<CompletionResponse> {
-        let text = self
-            .documents
-            .get(&params.text_document_position.text_document.uri)?;
-
-        let cursor = position_to_byte(text, params.text_document_position.position);
-
-        let completions = compute_completions_with_params(text, cursor, &[])
-            .into_iter()
-            .flat_map(|completion| match completion {
-                CompletionResult::Keywords { span, options } => options
-                    .into_iter()
-                    .map(|item| {
-                        let insert = item.apply.unwrap_or(item.label).to_string();
-                        let doc = Documentation::String(item.info.to_string());
-                        let edit = TextEdit::new(span_to_range(text, span), insert);
-                        let completion = CompletionTextEdit::Edit(edit);
-
-                        CompletionItem {
-                            label: item.label.to_string(),
-                            kind: Some(CompletionItemKind::KEYWORD),
-                            documentation: Some(doc),
-                            text_edit: Some(completion),
-                            ..Default::default()
-                        }
-                    })
-                    .collect(),
-                CompletionResult::AlignFunctions { span, options }
-                | CompletionResult::MapFunctions { span, options }
-                | CompletionResult::GroupFunctions { span, options }
-                | CompletionResult::BucketFunctions { span, options }
-                | CompletionResult::ComputeFunctions { span, options } => options
-                    .into_iter()
-                    .map(|item| {
-                        let doc = Documentation::String(item.label.to_string());
-                        let edit = TextEdit::new(span_to_range(text, span), item.label.to_string());
-                        let completion = CompletionTextEdit::Edit(edit);
-
-                        CompletionItem {
-                            label: item.label.to_string(),
-                            kind: Some(CompletionItemKind::FUNCTION),
-                            documentation: Some(doc),
-                            text_edit: Some(completion),
-                            ..Default::default()
-                        }
-                    })
-                    .collect(),
-                CompletionResult::Params { span, options } => options
-                    .into_iter()
-                    .map(|item| {
-                        let edit = TextEdit::new(span_to_range(text, span), item.label.to_string());
-                        let completion = CompletionTextEdit::Edit(edit);
-
-                        CompletionItem {
-                            label: item.label.to_string(),
-                            kind: Some(CompletionItemKind::VARIABLE),
-                            text_edit: Some(completion),
-                            ..Default::default()
-                        }
-                    })
-                    .collect(),
-                CompletionResult::Tag { .. }
-                | CompletionResult::Dataset { .. }
-                | CompletionResult::Metric { .. } => Vec::new(),
-            })
-            .collect();
-
-        Some(CompletionResponse::Array(completions))
-    }
-
     fn diagnostics(&self, text: &str) -> Vec<Diagnostic> {
         compute_diagnostics_raw(text, HashMap::new())
             .iter()
@@ -325,35 +239,4 @@ fn byte_to_position(text: &str, offset: usize) -> Position {
     }
 
     Position::new(line, character)
-}
-
-fn position_to_byte(text: &str, position: Position) -> usize {
-    let mut line = 0;
-    let mut character = 0;
-
-    for (idx, ch) in text.char_indices() {
-        if line == position.line {
-            if character >= position.character {
-                return idx;
-            }
-
-            if ch == '\n' {
-                return idx;
-            }
-
-            let next = character + ch.len_utf16() as u32;
-            if next > position.character {
-                return idx;
-            }
-            character = next;
-            continue;
-        }
-
-        if ch == '\n' {
-            line += 1;
-            character = 0;
-        }
-    }
-
-    text.len()
 }
